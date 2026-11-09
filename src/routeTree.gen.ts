@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicMonerooWebhookRouteImport } from './routes/api/public/moneroo-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMonerooWebhookRoute = ApiPublicMonerooWebhookRouteImport.update({
+  id: '/api/public/moneroo-webhook',
+  path: '/api/public/moneroo-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/public/moneroo-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/public/moneroo-webhook'
+  id: '__root__' | '/' | '/api/public/moneroo-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicMonerooWebhookRoute: typeof ApiPublicMonerooWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/moneroo-webhook': {
+      id: '/api/public/moneroo-webhook'
+      path: '/api/public/moneroo-webhook'
+      fullPath: '/api/public/moneroo-webhook'
+      preLoaderRoute: typeof ApiPublicMonerooWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicMonerooWebhookRoute: ApiPublicMonerooWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
