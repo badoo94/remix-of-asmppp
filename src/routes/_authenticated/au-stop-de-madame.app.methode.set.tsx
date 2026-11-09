@@ -224,8 +224,11 @@ function MethodEditor() {
           const pageRects = state.rects.filter((r) => r.page_id === page.id);
           return (
             <div key={page.id} className="relative flex w-full flex-col items-center">
-              <div className="relative flex h-6 w-full items-center justify-center bg-brand-ink">
-                <div className="absolute -bottom-3.5"><InsertMenu index={i} pageId={page.id} /></div>
+              <div className="relative z-30 flex h-6 w-full items-center justify-center bg-brand-ink">
+                <div className="absolute flex flex-col items-center gap-0.5" style={{ top: i > 0 ? -16 : -2 }}>
+                  {i > 0 && <InsertMenu index={i} pageId={state.pages[i - 1].id} />}
+                  <InsertMenu index={i} pageId={page.id} />
+                </div>
               </div>
               <div className="relative">
                 <div className="absolute right-2 top-2 z-30 flex items-center gap-1.5">
@@ -312,8 +315,8 @@ function MethodEditor() {
                 />
               </div>
               {i === state.pages.length - 1 && (
-                <div className="relative flex h-6 w-full items-center justify-center bg-brand-ink">
-                  <div className="absolute -top-3.5"><InsertMenu index={i + 1} pageId={page.id} /></div>
+                <div className="relative z-30 flex h-6 w-full items-center justify-center bg-brand-ink">
+                  <div className="absolute -top-2"><InsertMenu index={i + 1} pageId={page.id} /></div>
                 </div>
               )}
             </div>
