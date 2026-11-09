@@ -1,9 +1,6 @@
 /*
  * Tailwind v4 entry: config lives here, with no tailwind.config.js or PostCSS plugin.
- * - Keep every @import in this top block, above @theme and the rest of the file. Install an
- *   npm package before @importing its CSS. Never @import a remote URL (web fonts, CDN CSS): the
- *   build resolves @import from the filesystem. Load those with a <link> in the head() of
- *   src/routes/__root.tsx and name the family in a --font-* token in @theme inline below.
+ * Keep every @import in this top block. Web fonts are loaded via <link> in __root.tsx.
  */
 @import "tailwindcss" source(none);
 @source "../src";
@@ -11,25 +8,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The design lives in this file: oklch color tokens on the shadcn variables
- * (--background, --foreground, --primary, --secondary, --muted, --accent, ...) plus
- * new tokens as needed, font tokens, and custom styles and animations.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
 @theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "League Spartan", "Inter", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -70,86 +53,357 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brand (dashboard) */
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-card: var(--brand-card);
+  --color-brand-inset: var(--brand-inset);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-cream-hover: var(--brand-cream-hover);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-clock: var(--brand-clock);
+  --color-brand-alert: var(--brand-alert);
+  --color-brand-violet: var(--brand-violet);
+  --color-brand-trail: var(--brand-trail);
+
+  /* Reader / A4 */
+  --color-reader: var(--reader-bg);
+  --color-page: var(--page-bg);
+  --color-page-ink: var(--page-ink);
+  --color-page-badge: var(--page-badge);
+  --color-page-badge-ink: var(--page-badge-ink);
+
+  /* Apex trainer */
+  --color-apex-bg: var(--apex-bg);
+  --color-apex-medium: var(--apex-medium);
+  --color-apex-soft: var(--apex-soft);
+  --color-apex-line: var(--apex-line);
+  --color-apex-pink: var(--apex-pink);
+  --color-apex-fuchsia: var(--apex-fuchsia);
+  --color-apex-emerald: var(--apex-emerald);
+  --color-apex-amber: var(--apex-amber);
+  --color-apex-cyan: var(--apex-cyan);
+  --color-apex-purple: var(--apex-purple);
+  --color-apex-danger: var(--apex-danger);
 }
 
+/* The app is dark by design; the A4 reader tokens below never change with the theme. */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-}
+  --radius: 0.875rem;
+  --background: oklch(0.155 0.008 275);
+  --foreground: oklch(0.97 0.004 270);
+  --card: oklch(0.205 0.02 275);
+  --card-foreground: oklch(0.97 0.004 270);
+  --popover: oklch(0.2 0.018 275);
+  --popover-foreground: oklch(0.97 0.004 270);
+  --primary: oklch(0.68 0.19 45);
+  --primary-foreground: oklch(0.16 0.01 60);
+  --secondary: oklch(0.26 0.018 275);
+  --secondary-foreground: oklch(0.95 0.004 270);
+  --muted: oklch(0.24 0.015 275);
+  --muted-foreground: oklch(0.7 0.012 270);
+  --accent: oklch(0.29 0.02 275);
+  --accent-foreground: oklch(0.97 0.004 270);
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.32 0.015 275);
+  --input: oklch(0.34 0.015 275);
+  --ring: oklch(0.72 0.17 60);
+  --chart-1: oklch(0.68 0.19 45);
+  --chart-2: oklch(0.78 0.16 75);
+  --chart-3: oklch(0.8 0.13 210);
+  --chart-4: oklch(0.6 0.2 300);
+  --chart-5: oklch(0.65 0.2 15);
+  --sidebar: oklch(0.18 0.012 275);
+  --sidebar-foreground: oklch(0.97 0.004 270);
+  --sidebar-primary: oklch(0.68 0.19 45);
+  --sidebar-primary-foreground: oklch(0.16 0.01 60);
+  --sidebar-accent: oklch(0.26 0.018 275);
+  --sidebar-accent-foreground: oklch(0.97 0.004 270);
+  --sidebar-border: oklch(0.32 0.015 275);
+  --sidebar-ring: oklch(0.72 0.17 60);
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  /* Brand */
+  --brand-dark: oklch(0.15 0.006 275);
+  --brand-card: oklch(0.2 0.022 275);
+  --brand-inset: oklch(0.17 0.01 275);
+  --brand-cream: oklch(0.85 0.03 85);
+  --brand-cream-hover: oklch(0.81 0.035 85);
+  --brand-orange: oklch(0.66 0.2 42);
+  --brand-gold: oklch(0.77 0.17 70);
+  --brand-ink: oklch(0.18 0.01 60);
+  --brand-clock: oklch(0.8 0.14 210);
+  --brand-alert: oklch(0.66 0.21 25);
+  --brand-violet: oklch(0.55 0.22 300);
+  --brand-trail: oklch(0.27 0.02 275);
+  --gradient-cta: linear-gradient(90deg, oklch(0.64 0.2 40), oklch(0.7 0.19 50), oklch(0.76 0.15 60));
+  --gradient-gold: linear-gradient(90deg, oklch(0.77 0.17 70), oklch(0.7 0.19 50));
+  --gradient-avatar: linear-gradient(135deg, oklch(0.6 0.2 300), oklch(0.5 0.25 290));
+  --gradient-header: linear-gradient(90deg, oklch(0.21 0.025 275), oklch(0.19 0.03 275));
+  --gradient-activation: linear-gradient(135deg, oklch(0.24 0.05 55 / 0.7), oklch(0.2 0.02 45), oklch(0.18 0.012 275));
+  --shadow-glow: 0 0 15px -2px oklch(0.66 0.2 42 / 0.45);
+  --shadow-glow-red: 0 0 12px 1px oklch(0.62 0.22 25 / 0.3);
+  --app-radial:
+    radial-gradient(circle at 50% 25%, oklch(0.4 0.12 40 / 0.22) 0%, transparent 60%),
+    radial-gradient(circle at 80% 50%, oklch(0.55 0.14 60 / 0.12) 0%, transparent 50%);
+
+  /* A4 reader — immune to dark mode */
+  --reader-bg: oklch(0.2 0.01 60);
+  --page-bg: oklch(0.905 0.012 230);
+  --page-ink: oklch(0.15 0 0);
+  --page-gradient: linear-gradient(90deg, oklch(0.66 0.23 13), oklch(0.45 0.18 330));
+  --page-badge: oklch(0.36 0.06 40);
+  --page-badge-ink: oklch(0.98 0 0);
+  --page-rule: oklch(0 0 0);
+
+  /* Apex trainer */
+  --apex-bg: oklch(0.18 0 0);
+  --apex-medium: oklch(0.29 0 0);
+  --apex-soft: oklch(0.7 0 0);
+  --apex-line: oklch(0.45 0.02 260);
+  --apex-pink: oklch(0.59 0.22 0);
+  --apex-fuchsia: oklch(0.67 0.26 322);
+  --apex-emerald: oklch(0.77 0.15 163);
+  --apex-amber: oklch(0.8 0.16 75);
+  --apex-cyan: oklch(0.79 0.13 210);
+  --apex-purple: oklch(0.63 0.23 304);
+  --apex-danger: oklch(0.64 0.21 25);
+  --apex-card: linear-gradient(145deg, oklch(0.23 0 0), oklch(0.29 0 0));
+  --apex-title: linear-gradient(90deg, oklch(0.66 0.24 355), oklch(0.8 0.18 150));
+  --apex-bar: linear-gradient(90deg, oklch(0.67 0.26 322), oklch(0.77 0.15 163));
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
-
+  html {
+    background-color: var(--color-background);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+/* ---------- Utilities ---------- */
+@utility bg-app {
+  background-color: var(--brand-dark);
+  background-image: var(--app-radial);
+}
+@utility bg-cta {
+  background-image: var(--gradient-cta);
+}
+@utility bg-gold {
+  background-image: var(--gradient-gold);
+}
+@utility bg-avatar {
+  background-image: var(--gradient-avatar);
+}
+@utility bg-header-card {
+  background-image: var(--gradient-header);
+}
+@utility bg-activation {
+  background-image: var(--gradient-activation);
+}
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+@utility shadow-glow-red {
+  box-shadow: var(--shadow-glow-red);
+}
+@utility bg-apex-card {
+  background-image: var(--apex-card);
+}
+@utility bg-apex-title {
+  background-image: var(--apex-title);
+}
+@utility bg-apex-bar {
+  background-image: var(--apex-bar);
+}
+@utility animate-day-pop {
+  animation: day-pop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@utility animate-slide-in {
+  animation: slide-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes day-pop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.96); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes slide-in {
+  0% { opacity: 0; transform: translateX(60%); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ---------- A4 "Méthode" design template ---------- */
+.mp-reader {
+  min-height: 100vh;
+  background-color: var(--reader-bg);
+  padding: 1rem 0 7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6mm;
+}
+
+.mp-page-shell {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mp-page {
+  width: 210mm;
+  height: 297mm;
+  background: var(--page-bg);
+  color: var(--page-ink);
+  padding: 6mm 2.5mm 0;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  box-shadow: 0 8px 30px -12px oklch(0 0 0 / 0.5);
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+.mp-page.is-reading {
+  outline: 4px solid var(--brand-gold);
+  outline-offset: -4px;
+}
+
+.mp-zone {
+  height: 250mm;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.header-outside {
+  min-height: 40mm;
+  flex: none;
+  padding: 0 1mm 2.5mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 2.5mm;
+}
+
+.mp-partie {
+  background: var(--page-gradient);
+  color: var(--page-ink);
+  font-family: "League Spartan", sans-serif;
+  font-weight: 700;
+  font-size: 17pt;
+  padding: 1.5mm 3mm;
+  line-height: 1.2;
+}
+
+.mp-badge {
+  align-self: flex-start;
+  background: var(--page-badge);
+  color: var(--page-badge-ink);
+  font-family: "League Spartan", sans-serif;
+  font-weight: 700;
+  font-size: 9pt;
+  padding: 1mm 3mm;
+}
+
+.mp-titre {
+  font-family: "League Spartan", sans-serif;
+  font-weight: 800;
+  font-size: 15pt;
+  line-height: 1.05;
+}
+
+.mp-sous {
+  font-family: "League Spartan", sans-serif;
+  font-weight: 700;
+  font-size: 12pt;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.cadre {
+  flex: 0 1 205mm;
+  min-height: 0;
+  border: 1.5px solid var(--page-rule);
+  padding: 5mm 4mm;
+  font-family: "Inter", sans-serif;
+  line-height: 1.45;
+  text-align: justify;
+  overflow: hidden;
+  position: relative;
+}
+.cadre p {
+  margin: 0 0 3mm;
+}
+.cadre p:last-child {
+  margin-bottom: 0;
+}
+
+.mp-blank {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10mm;
+  font-family: "Inter", sans-serif;
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+.mp-footer {
+  margin: 3mm 1mm 0;
+  padding-bottom: 1mm;
+  border-bottom: 1.5px solid var(--page-rule);
+  display: flex;
+  justify-content: space-between;
+  font-family: "Inter", sans-serif;
+  font-size: 10pt;
+}
+
+.mp-full-image {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--page-bg);
+  z-index: 1;
+}
+.mp-full-image img {
+  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+[contenteditable="true"] {
+  outline: none;
+}
+[contenteditable="true"]:focus {
+  box-shadow: inset 0 0 0 1px oklch(0.6 0.15 250 / 0.6);
+}
+[contenteditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  opacity: 0.4;
+}
+
+::highlight(tts-word) {
+  background-color: oklch(0.85 0.17 90);
+  color: var(--page-ink);
+}
+
+/* Apex trainer ring */
+.apex-ring {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke 0.2s;
 }
