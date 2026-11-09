@@ -10,33 +10,152 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAuStopDeMadameEditRouteImport } from './routes/_authenticated/au-stop-de-madame.edit'
+import { Route as ApiPublicMonerooWebhookRouteImport } from './routes/api/public/moneroo-webhook'
+import { Route as AuStopDeMadameAppExerciceRouteImport } from './routes/au-stop-de-madame.app.exercice'
+import { Route as AuStopDeMadameAppExercicesRouteImport } from './routes/au-stop-de-madame.app.exercices'
+import { Route as AuthenticatedAuStopDeMadameAppIndexRouteImport } from './routes/_authenticated/au-stop-de-madame.app.index'
+import { Route as AuStopDeMadameAppMethodeIndexRouteImport } from './routes/au-stop-de-madame.app.methode.index'
+import { Route as AuthenticatedAuStopDeMadameAppMethodeSetRouteImport } from './routes/_authenticated/au-stop-de-madame.app.methode.set'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAuStopDeMadameEditRoute =
+  AuthenticatedAuStopDeMadameEditRouteImport.update({
+    id: '/au-stop-de-madame/edit',
+    path: '/au-stop-de-madame/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicMonerooWebhookRoute = ApiPublicMonerooWebhookRouteImport.update({
+  id: '/api/public/moneroo-webhook',
+  path: '/api/public/moneroo-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuStopDeMadameAppExerciceRoute =
+  AuStopDeMadameAppExerciceRouteImport.update({
+    id: '/au-stop-de-madame/app/exercice',
+    path: '/au-stop-de-madame/app/exercice',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuStopDeMadameAppExercicesRoute =
+  AuStopDeMadameAppExercicesRouteImport.update({
+    id: '/au-stop-de-madame/app/exercices',
+    path: '/au-stop-de-madame/app/exercices',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedAuStopDeMadameAppIndexRoute =
+  AuthenticatedAuStopDeMadameAppIndexRouteImport.update({
+    id: '/au-stop-de-madame/app/',
+    path: '/au-stop-de-madame/app/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuStopDeMadameAppMethodeIndexRoute =
+  AuStopDeMadameAppMethodeIndexRouteImport.update({
+    id: '/au-stop-de-madame/app/methode/',
+    path: '/au-stop-de-madame/app/methode/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedAuStopDeMadameAppMethodeSetRoute =
+  AuthenticatedAuStopDeMadameAppMethodeSetRouteImport.update({
+    id: '/au-stop-de-madame/app/methode/set',
+    path: '/au-stop-de-madame/app/methode/set',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/au-stop-de-madame/edit': typeof AuthenticatedAuStopDeMadameEditRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
+  '/au-stop-de-madame/app/exercice': typeof AuStopDeMadameAppExerciceRoute
+  '/au-stop-de-madame/app/exercices': typeof AuStopDeMadameAppExercicesRoute
+  '/au-stop-de-madame/app/': typeof AuthenticatedAuStopDeMadameAppIndexRoute
+  '/au-stop-de-madame/app/methode/': typeof AuStopDeMadameAppMethodeIndexRoute
+  '/au-stop-de-madame/app/methode/set': typeof AuthenticatedAuStopDeMadameAppMethodeSetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/au-stop-de-madame/edit': typeof AuthenticatedAuStopDeMadameEditRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
+  '/au-stop-de-madame/app/exercice': typeof AuStopDeMadameAppExerciceRoute
+  '/au-stop-de-madame/app/exercices': typeof AuStopDeMadameAppExercicesRoute
+  '/au-stop-de-madame/app': typeof AuthenticatedAuStopDeMadameAppIndexRoute
+  '/au-stop-de-madame/app/methode': typeof AuStopDeMadameAppMethodeIndexRoute
+  '/au-stop-de-madame/app/methode/set': typeof AuthenticatedAuStopDeMadameAppMethodeSetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/au-stop-de-madame/edit': typeof AuthenticatedAuStopDeMadameEditRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
+  '/au-stop-de-madame/app/exercice': typeof AuStopDeMadameAppExerciceRoute
+  '/au-stop-de-madame/app/exercices': typeof AuStopDeMadameAppExercicesRoute
+  '/_authenticated/au-stop-de-madame/app/': typeof AuthenticatedAuStopDeMadameAppIndexRoute
+  '/au-stop-de-madame/app/methode/': typeof AuStopDeMadameAppMethodeIndexRoute
+  '/_authenticated/au-stop-de-madame/app/methode/set': typeof AuthenticatedAuStopDeMadameAppMethodeSetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/au-stop-de-madame/edit'
+    | '/api/public/moneroo-webhook'
+    | '/au-stop-de-madame/app/exercice'
+    | '/au-stop-de-madame/app/exercices'
+    | '/au-stop-de-madame/app/'
+    | '/au-stop-de-madame/app/methode/'
+    | '/au-stop-de-madame/app/methode/set'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/au-stop-de-madame/edit'
+    | '/api/public/moneroo-webhook'
+    | '/au-stop-de-madame/app/exercice'
+    | '/au-stop-de-madame/app/exercices'
+    | '/au-stop-de-madame/app'
+    | '/au-stop-de-madame/app/methode'
+    | '/au-stop-de-madame/app/methode/set'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/au-stop-de-madame/edit'
+    | '/api/public/moneroo-webhook'
+    | '/au-stop-de-madame/app/exercice'
+    | '/au-stop-de-madame/app/exercices'
+    | '/_authenticated/au-stop-de-madame/app/'
+    | '/au-stop-de-madame/app/methode/'
+    | '/_authenticated/au-stop-de-madame/app/methode/set'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiPublicMonerooWebhookRoute: typeof ApiPublicMonerooWebhookRoute
+  AuStopDeMadameAppExerciceRoute: typeof AuStopDeMadameAppExerciceRoute
+  AuStopDeMadameAppExercicesRoute: typeof AuStopDeMadameAppExercicesRoute
+  AuStopDeMadameAppMethodeIndexRoute: typeof AuStopDeMadameAppMethodeIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +167,97 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/au-stop-de-madame/edit': {
+      id: '/_authenticated/au-stop-de-madame/edit'
+      path: '/au-stop-de-madame/edit'
+      fullPath: '/au-stop-de-madame/edit'
+      preLoaderRoute: typeof AuthenticatedAuStopDeMadameEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/moneroo-webhook': {
+      id: '/api/public/moneroo-webhook'
+      path: '/api/public/moneroo-webhook'
+      fullPath: '/api/public/moneroo-webhook'
+      preLoaderRoute: typeof ApiPublicMonerooWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/au-stop-de-madame/app/exercice': {
+      id: '/au-stop-de-madame/app/exercice'
+      path: '/au-stop-de-madame/app/exercice'
+      fullPath: '/au-stop-de-madame/app/exercice'
+      preLoaderRoute: typeof AuStopDeMadameAppExerciceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/au-stop-de-madame/app/exercices': {
+      id: '/au-stop-de-madame/app/exercices'
+      path: '/au-stop-de-madame/app/exercices'
+      fullPath: '/au-stop-de-madame/app/exercices'
+      preLoaderRoute: typeof AuStopDeMadameAppExercicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/au-stop-de-madame/app/': {
+      id: '/_authenticated/au-stop-de-madame/app/'
+      path: '/au-stop-de-madame/app'
+      fullPath: '/au-stop-de-madame/app/'
+      preLoaderRoute: typeof AuthenticatedAuStopDeMadameAppIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/au-stop-de-madame/app/methode/': {
+      id: '/au-stop-de-madame/app/methode/'
+      path: '/au-stop-de-madame/app/methode'
+      fullPath: '/au-stop-de-madame/app/methode/'
+      preLoaderRoute: typeof AuStopDeMadameAppMethodeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/au-stop-de-madame/app/methode/set': {
+      id: '/_authenticated/au-stop-de-madame/app/methode/set'
+      path: '/au-stop-de-madame/app/methode/set'
+      fullPath: '/au-stop-de-madame/app/methode/set'
+      preLoaderRoute: typeof AuthenticatedAuStopDeMadameAppMethodeSetRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAuStopDeMadameEditRoute: typeof AuthenticatedAuStopDeMadameEditRoute
+  AuthenticatedAuStopDeMadameAppIndexRoute: typeof AuthenticatedAuStopDeMadameAppIndexRoute
+  AuthenticatedAuStopDeMadameAppMethodeSetRoute: typeof AuthenticatedAuStopDeMadameAppMethodeSetRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAuStopDeMadameEditRoute: AuthenticatedAuStopDeMadameEditRoute,
+  AuthenticatedAuStopDeMadameAppIndexRoute:
+    AuthenticatedAuStopDeMadameAppIndexRoute,
+  AuthenticatedAuStopDeMadameAppMethodeSetRoute:
+    AuthenticatedAuStopDeMadameAppMethodeSetRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiPublicMonerooWebhookRoute: ApiPublicMonerooWebhookRoute,
+  AuStopDeMadameAppExerciceRoute: AuStopDeMadameAppExerciceRoute,
+  AuStopDeMadameAppExercicesRoute: AuStopDeMadameAppExercicesRoute,
+  AuStopDeMadameAppMethodeIndexRoute: AuStopDeMadameAppMethodeIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
