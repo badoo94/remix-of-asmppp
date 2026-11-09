@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAuStopDeMadameEditRouteImport } from './routes/_authenticated/au-stop-de-madame.edit'
 import { Route as ApiPublicMonerooWebhookRouteImport } from './routes/api/public/moneroo-webhook'
 import { Route as AuStopDeMadameAppExerciceRouteImport } from './routes/au-stop-de-madame.app.exercice'
 import { Route as AuStopDeMadameAppExercicesRouteImport } from './routes/au-stop-de-madame.app.exercices'
@@ -33,6 +34,12 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAuStopDeMadameEditRoute =
+  AuthenticatedAuStopDeMadameEditRouteImport.update({
+    id: '/au-stop-de-madame/edit',
+    path: '/au-stop-de-madame/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicMonerooWebhookRoute = ApiPublicMonerooWebhookRouteImport.update({
   id: '/api/public/moneroo-webhook',
   path: '/api/public/moneroo-webhook',
@@ -72,6 +79,7 @@ const AuthenticatedAuStopDeMadameAppMethodeSetRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/au-stop-de-madame/edit': typeof AuthenticatedAuStopDeMadameEditRoute
   '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
   '/au-stop-de-madame/app/exercice': typeof AuStopDeMadameAppExerciceRoute
   '/au-stop-de-madame/app/exercices': typeof AuStopDeMadameAppExercicesRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/au-stop-de-madame/edit': typeof AuthenticatedAuStopDeMadameEditRoute
   '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
   '/au-stop-de-madame/app/exercice': typeof AuStopDeMadameAppExerciceRoute
   '/au-stop-de-madame/app/exercices': typeof AuStopDeMadameAppExercicesRoute
@@ -94,6 +103,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/au-stop-de-madame/edit': typeof AuthenticatedAuStopDeMadameEditRoute
   '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
   '/au-stop-de-madame/app/exercice': typeof AuStopDeMadameAppExerciceRoute
   '/au-stop-de-madame/app/exercices': typeof AuStopDeMadameAppExercicesRoute
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/au-stop-de-madame/edit'
     | '/api/public/moneroo-webhook'
     | '/au-stop-de-madame/app/exercice'
     | '/au-stop-de-madame/app/exercices'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/au-stop-de-madame/edit'
     | '/api/public/moneroo-webhook'
     | '/au-stop-de-madame/app/exercice'
     | '/au-stop-de-madame/app/exercices'
@@ -127,6 +139,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/au-stop-de-madame/edit'
     | '/api/public/moneroo-webhook'
     | '/au-stop-de-madame/app/exercice'
     | '/au-stop-de-madame/app/exercices'
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/au-stop-de-madame/edit': {
+      id: '/_authenticated/au-stop-de-madame/edit'
+      path: '/au-stop-de-madame/edit'
+      fullPath: '/au-stop-de-madame/edit'
+      preLoaderRoute: typeof AuthenticatedAuStopDeMadameEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/moneroo-webhook': {
       id: '/api/public/moneroo-webhook'
@@ -214,11 +234,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAuStopDeMadameEditRoute: typeof AuthenticatedAuStopDeMadameEditRoute
   AuthenticatedAuStopDeMadameAppIndexRoute: typeof AuthenticatedAuStopDeMadameAppIndexRoute
   AuthenticatedAuStopDeMadameAppMethodeSetRoute: typeof AuthenticatedAuStopDeMadameAppMethodeSetRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAuStopDeMadameEditRoute: AuthenticatedAuStopDeMadameEditRoute,
   AuthenticatedAuStopDeMadameAppIndexRoute:
     AuthenticatedAuStopDeMadameAppIndexRoute,
   AuthenticatedAuStopDeMadameAppMethodeSetRoute:
