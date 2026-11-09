@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiPublicMonerooWebhookRouteImport } from './routes/api/public/moneroo-webhook'
 import { Route as AuthenticatedAuStopDeMadameAppIndexRouteImport } from './routes/_authenticated/au-stop-de-madame.app.index'
+import { Route as AuStopDeMadameAppMethodeIndexRouteImport } from './routes/au-stop-de-madame.app.methode.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,18 +41,26 @@ const AuthenticatedAuStopDeMadameAppIndexRoute =
     path: '/au-stop-de-madame/app/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuStopDeMadameAppMethodeIndexRoute =
+  AuStopDeMadameAppMethodeIndexRouteImport.update({
+    id: '/au-stop-de-madame/app/methode/',
+    path: '/au-stop-de-madame/app/methode/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
   '/au-stop-de-madame/app/': typeof AuthenticatedAuStopDeMadameAppIndexRoute
+  '/au-stop-de-madame/app/methode/': typeof AuStopDeMadameAppMethodeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
   '/au-stop-de-madame/app': typeof AuthenticatedAuStopDeMadameAppIndexRoute
+  '/au-stop-de-madame/app/methode': typeof AuStopDeMadameAppMethodeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -60,13 +69,23 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
   '/_authenticated/au-stop-de-madame/app/': typeof AuthenticatedAuStopDeMadameAppIndexRoute
+  '/au-stop-de-madame/app/methode/': typeof AuStopDeMadameAppMethodeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/api/public/moneroo-webhook' | '/au-stop-de-madame/app/'
+    | '/'
+    | '/auth'
+    | '/api/public/moneroo-webhook'
+    | '/au-stop-de-madame/app/'
+    | '/au-stop-de-madame/app/methode/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/api/public/moneroo-webhook' | '/au-stop-de-madame/app'
+  to:
+    | '/'
+    | '/auth'
+    | '/api/public/moneroo-webhook'
+    | '/au-stop-de-madame/app'
+    | '/au-stop-de-madame/app/methode'
   id:
     | '__root__'
     | '/'
@@ -74,6 +93,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/api/public/moneroo-webhook'
     | '/_authenticated/au-stop-de-madame/app/'
+    | '/au-stop-de-madame/app/methode/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -81,6 +101,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPublicMonerooWebhookRoute: typeof ApiPublicMonerooWebhookRoute
+  AuStopDeMadameAppMethodeIndexRoute: typeof AuStopDeMadameAppMethodeIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -120,6 +141,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuStopDeMadameAppIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/au-stop-de-madame/app/methode/': {
+      id: '/au-stop-de-madame/app/methode/'
+      path: '/au-stop-de-madame/app/methode'
+      fullPath: '/au-stop-de-madame/app/methode/'
+      preLoaderRoute: typeof AuStopDeMadameAppMethodeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -140,6 +168,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicMonerooWebhookRoute: ApiPublicMonerooWebhookRoute,
+  AuStopDeMadameAppMethodeIndexRoute: AuStopDeMadameAppMethodeIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
