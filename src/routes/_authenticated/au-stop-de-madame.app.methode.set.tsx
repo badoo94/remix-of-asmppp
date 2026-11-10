@@ -173,7 +173,7 @@ function MethodEditor() {
     }
   }
 
-  const InsertMenu = ({ index, pageId }: { index: number; pageId?: string }) => (
+  const InsertMenu = ({ index, pageId }: { index: number; pageId?: string | undefined }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button

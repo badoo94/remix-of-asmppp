@@ -167,8 +167,8 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
   const activeData = (): Data => {
     const c = ctx.current;
     if (c.custom && c.customData) return c.customData;
-    if (c.type === "classic") return classic[c.levelIndex];
-    return (plan() as typeof squat)[c.levelIndex].days[c.dayIndex] as Data;
+    if (c.type === "classic") return classic[c.levelIndex] ?? classic[0]!;
+    return ((plan() as typeof squat)[c.levelIndex]?.days[c.dayIndex] ?? squat[0]!.days[0]!) as Data;
   };
   const wl = (k: WordKey) => words[ctx.current.lang][k];
 
@@ -273,7 +273,8 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
     setPausedUI(true);
     if (!c.custom) {
       const next = structuredClone(progressRef.current);
-      next[c.type][c.levelIndex].days[c.dayIndex].sets[c.setIndex] = true;
+      const daySets = next[c.type][c.levelIndex]?.days[c.dayIndex]?.sets;
+      if (daySets) daySets[c.setIndex] = true;
       setProgress(next);
       save({ progress: next });
       setScreen("days");
@@ -296,7 +297,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
   }
 
   function startSet(d: number) {
-    const sets = progress[type][levelIndex].days[d].sets;
+    const sets = progress[type][levelIndex]?.days[d]?.sets ?? [];
     const idx = sets.findIndex((x) => !x);
     if (idx < 0) return;
     setDayIndex(d);
@@ -513,7 +514,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
                 ⭐ {w("custom")}
               </button>
               {levelPlan.map((l, i) => {
-                const complete = progress[type][i].days.every((d) => d.sets.every(Boolean));
+                const complete = (progress[type][i]?.days ?? []).every((d) => d.sets.every(Boolean));
                 return (
                   <button
                     key={i}
@@ -543,7 +544,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
             </header>
             <div className="space-y-3 overflow-y-auto">
               {dayPlan.map((d, j) => {
-                const unlocked = j === 0 || dayPlan[j - 1].sets.every(Boolean);
+                const unlocked = j === 0 || !!dayPlan[j - 1]?.sets.every(Boolean);
                 return (
                   <button
                     key={j}

@@ -77,7 +77,7 @@ export function PaymentProvider({ children }: { children: ReactNode }) {
       setBusy(true);
       try {
         if (settings.paymentMode === "moneroo") {
-          const { checkoutUrl } = await startMoneroo({ data: { returnUrl: window.location.href.split("#")[0] } });
+          const { checkoutUrl } = await startMoneroo({ data: { returnUrl: window.location.href.split("#")[0] ?? window.location.href } });
           window.location.assign(checkoutUrl);
           return;
         }
