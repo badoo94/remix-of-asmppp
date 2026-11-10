@@ -5,13 +5,14 @@ export type ClassicLevel = { level: number; hold: number; rest: number; r: numbe
 export type SquatDay = { d: number; a: number; r: number; b: number; s: number };
 export type BellyDay = { g: number; d: number; c: number; r: number; s: number };
 
-export const classic: ClassicLevel[] = [
+const classicRaw: [number, number, number, number][] = [
   [3, 5, 5, 3], [5, 5, 8, 3], [5, 5, 10, 3], [8, 8, 10, 3], [10, 10, 10, 3], [10, 10, 12, 3],
   [10, 10, 15, 3], [10, 10, 15, 3], [10, 10, 15, 3], [10, 10, 10, 2], [10, 10, 10, 2], [10, 10, 15, 3],
-].map((v, i) => ({ level: i + 1, hold: v[0], rest: v[1], r: v[2], sets: v[3] }));
+];
+export const classic: ClassicLevel[] = classicRaw.map(([hold, rest, r, sets], i) => ({ level: i + 1, hold, rest, r, sets }));
 
 // Squat tuples: descent, repetitions, breathe-after-reps, sets. Ascent is fixed at 2 seconds.
-const squatRaw = [
+const squatRaw: [number, number, number, number][][] = [
   [[2, 8, 5, 3], [2, 10, 5, 3], [2, 8, 5, 3], [2, 10, 5, 3], [2, 8, 5, 3], [2, 10, 5, 3], [2, 12, 5, 3]],
   [[2, 8, 5, 3], [3, 8, 5, 3], [2, 10, 5, 3], [3, 10, 5, 3], [2, 8, 5, 3], [3, 8, 5, 3], [3, 10, 5, 3]],
   [[3, 8, 5, 3], [3, 10, 5, 3], [3, 8, 5, 3], [3, 10, 5, 3], [3, 8, 5, 3], [3, 10, 5, 3], [3, 8, 5, 3]],
@@ -30,11 +31,11 @@ const squatRaw = [
 ];
 export const squat = squatRaw.map((days, i) => ({
   level: i + 1,
-  days: days.map((v): SquatDay => ({ d: v[0], a: 2, r: v[1], b: v[2], s: v[3] })),
+  days: days.map(([d, r, b, sets]): SquatDay => ({ d, a: 2, r, b, s: sets })),
 }));
 
 // Belly tuples: inflate, deflate, cycles, repetitions, sets.
-const bellyRaw = [
+const bellyRaw: [number, number, number, number, number][][] = [
   [[2, 2, 2, 3, 3], [2, 2, 3, 3, 3], [2, 2, 2, 3, 3], [2, 2, 3, 3, 3], [2, 2, 4, 4, 3], [2, 2, 3, 4, 3], [2, 2, 4, 4, 3]],
   [[2, 2, 4, 5, 3], [2, 2, 3, 5, 3], [2, 2, 5, 5, 3], [2, 2, 4, 5, 3], [2, 2, 5, 5, 3], [2, 2, 5, 6, 3], [2, 2, 4, 6, 3]],
   [[2, 2, 4, 7, 3], [2, 2, 5, 7, 3], [2, 2, 5, 7, 3], [2, 2, 5, 8, 3], [2, 2, 4, 8, 3], [2, 2, 5, 8, 3], [2, 2, 5, 9, 3]],
@@ -50,7 +51,7 @@ const bellyRaw = [
 ];
 export const belly = bellyRaw.map((days, i) => ({
   level: i + 1,
-  days: days.map((v): BellyDay => ({ g: v[0], d: v[1], c: v[2], r: v[3], s: v[4] })),
+  days: days.map(([g, d, c, r, sets]): BellyDay => ({ g, d, c, r, s: sets })),
 }));
 
 export const goals: Record<Lang, Record<ExType, string[]>> = {

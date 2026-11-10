@@ -12,7 +12,7 @@ import { appSettingsQuery, DEFAULT_APP_CONFIG } from "@/lib/settings";
 import { dayFromStart, dayPricesQuery, formatMoney, priceForDay } from "@/lib/premium-offer";
 import { confirmMonerooPayment, startMonerooPayment } from "@/lib/payment.functions";
 
-type Ctx = { startCheckout: (opts?: { url?: string }) => void; busy: boolean };
+type Ctx = { startCheckout: (opts?: { url?: string | undefined }) => void; busy: boolean };
 const PaymentCtx = createContext<Ctx>({ startCheckout: () => {}, busy: false });
 
 export function usePremiumCheckout() {
@@ -53,7 +53,7 @@ export function PaymentProvider({ children }: { children: ReactNode }) {
   }, [user, confirmMoneroo, refetch, qc]);
 
   const startCheckout = useCallback(
-    async (opts?: { url?: string }) => {
+    async (opts?: { url?: string | undefined }) => {
       if (isPremium) {
         toast.success("Vous profitez déjà de l'offre premium.");
         return;

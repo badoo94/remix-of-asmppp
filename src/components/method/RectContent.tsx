@@ -28,7 +28,7 @@ const designClass: Record<TextDesign, string> = {
 };
 
 /** Body of a content rectangle (shared by reader, editor and fullscreen view). */
-export function RectBody({ rect, onButton, interactive = true }: { rect: MethodRect; onButton?: (e: MouseEvent) => void; interactive?: boolean }) {
+export function RectBody({ rect, onButton, interactive = true }: { rect: MethodRect; onButton?: ((e: MouseEvent) => void) | undefined; interactive?: boolean }) {
   const c = rect.config;
   const font = FONT_OPTIONS.find((f) => f.value === c.font)?.css;
   const title = c.title ? <div className="mb-1 shrink-0 font-display text-sm font-bold leading-tight">{c.title}</div> : null;

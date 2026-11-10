@@ -226,7 +226,7 @@ function MethodEditor() {
             <div key={page.id} className="relative flex w-full flex-col items-center">
               <div className="relative z-30 flex h-6 w-full items-center justify-center bg-brand-ink">
                 <div className="absolute flex flex-col items-center gap-0.5" style={{ top: i > 0 ? -16 : -2 }}>
-                  {i > 0 && <InsertMenu index={i} pageId={state.pages[i - 1].id} />}
+                  {i > 0 && <InsertMenu index={i} pageId={state.pages[i - 1]?.id} />}
                   <InsertMenu index={i} pageId={page.id} />
                 </div>
               </div>
@@ -248,7 +248,7 @@ function MethodEditor() {
                 {page.image_url && (
                   <div className="absolute left-2 top-2 z-30 flex w-52 items-center gap-2 rounded-full bg-page-ink px-3 py-1.5 text-page shadow">
                     <span className="text-[10px]">Taille</span>
-                    <Slider min={20} max={100} step={1} value={[page.image_size]} onValueChange={([v]) => setPage(page.id, { image_size: v })} />
+                    <Slider min={20} max={100} step={1} value={[page.image_size]} onValueChange={([v]) => setPage(page.id, { image_size: v ?? 100 })} />
                     <button type="button" aria-label="Retirer l'image" onClick={() => setPage(page.id, { image_url: null })}>
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -284,7 +284,7 @@ function MethodEditor() {
                         onDragStop={(_e, d) =>
                           setRect(r.id, { x_percent: (d.x / PAGE_W) * 100, y_percent: (d.y / PAGE_H) * 100 })
                         }
-                        onResizeStop={(_e, _dir, el, _delta, pos) =>
+                        onResizeStop={(_e, _dir, el: HTMLElement, _delta, pos: { x: number; y: number }) =>
                           setRect(r.id, {
                             width_percent: (el.offsetWidth / PAGE_W) * 100,
                             height_percent: (el.offsetHeight / PAGE_H) * 100,

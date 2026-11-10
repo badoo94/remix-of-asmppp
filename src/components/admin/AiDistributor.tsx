@@ -25,7 +25,10 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
   const [busy, setBusy] = useState(false);
 
   async function start() {
-    if (!file) return toast.error("Choisissez un PDF");
+    if (!file) {
+      toast.error("Choisissez un PDF");
+      return;
+    }
     if (mode === "replace" && !window.confirm("Remplacer toutes les pages existantes de la méthode ?")) return;
     setBusy(true);
     setProgress(0);
@@ -48,7 +51,7 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
       let created = 0;
       for (let i = 0; i < chunks.length; i++) {
         setStatus(`Répartition par l'IA : partie ${i + 1} / ${chunks.length}…`);
-        const { pages } = await run({ data: { text: chunks[i], note, part: i + 1, total: chunks.length } });
+        const { pages } = await run({ data: { text: chunks[i] ?? "", note, part: i + 1, total: chunks.length } });
         if (pages.length) {
           const rows = pages.map((p) => ({
             position: ++position,

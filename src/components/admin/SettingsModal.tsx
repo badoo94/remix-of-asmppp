@@ -98,7 +98,7 @@ export function SettingsModal({ open, onOpenChange }: { open: boolean; onOpenCha
               </Row>
               <div className="space-y-2">
                 <Label>Taille de police du cadre (Inter) : {cfg.fontSize} pt</Label>
-                <Slider min={8} max={28} step={0.5} value={[cfg.fontSize]} onValueChange={([v]) => set({ fontSize: v })} />
+                <Slider min={8} max={28} step={0.5} value={[cfg.fontSize]} onValueChange={([v]) => set({ fontSize: v ?? 18 })} />
                 <p className="text-xs text-muted-foreground">Le texte réduit automatiquement si un cadre déborde, pour rester entièrement visible.</p>
               </div>
               <div className="space-y-1.5">
