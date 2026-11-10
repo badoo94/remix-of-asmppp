@@ -9,7 +9,7 @@ export async function getMonerooSecret(): Promise<string> {
   return cfg.monerooSecretKey;
 }
 
-type VerifyResult = { ok: boolean; status?: string; orderId?: string; userId?: string };
+type VerifyResult = { ok: boolean; status?: string | undefined; orderId?: string; userId?: string };
 
 /** Ask Moneroo for the real status of a payment, then mark the matching order paid. */
 export async function verifyAndSyncPayment(paymentId: string): Promise<VerifyResult> {

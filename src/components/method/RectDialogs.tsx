@@ -81,11 +81,11 @@ export function RectConfigDialog({ rect, allRects, pageNumberOf, onClose, onSave
               </div>
               <div className="space-y-2">
                 <Label>Intensité du flou : {c.blur ?? 12}px</Label>
-                <Slider min={0} max={40} step={1} value={[c.blur ?? 12]} onValueChange={([v]) => setC({ blur: v })} />
+                <Slider min={0} max={40} step={1} value={[c.blur ?? 12]} onValueChange={([v]) => setC({ blur: v ?? 12 })} />
               </div>
               <div className="space-y-2">
                 <Label>Opacité : {c.opacity ?? 60}%</Label>
-                <Slider min={0} max={100} step={1} value={[c.opacity ?? 60]} onValueChange={([v]) => setC({ opacity: v })} />
+                <Slider min={0} max={100} step={1} value={[c.opacity ?? 60]} onValueChange={([v]) => setC({ opacity: v ?? 60 })} />
               </div>
               {c.style === "premium" && (
                 <>

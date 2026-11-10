@@ -17,7 +17,7 @@ const PAGE_TYPES = ["blank", "frame", "chapter", "subchapter", "full"];
 function parsePages(raw: string): AiPage[] {
   let txt = raw.trim();
   const fence = txt.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fence) txt = fence[1];
+  if (fence?.[1]) txt = fence[1];
   const start = txt.indexOf("{");
   const end = txt.lastIndexOf("}");
   if (start >= 0 && end > start) txt = txt.slice(start, end + 1);

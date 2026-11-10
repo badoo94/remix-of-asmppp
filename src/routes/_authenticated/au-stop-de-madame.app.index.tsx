@@ -125,8 +125,11 @@ function Dashboard() {
           </DropdownMenu>
         </section>
 
-        {ready && !isPremium && prices.length > 0 && (
-          <PremiumCountdown prices={prices} today={today} signupAt={signupAt} settings={settings} />
+        {ready && (!isPremium || isAdmin) && prices.length > 0 && (
+          <>
+            {isAdmin && <p className="-mb-2 text-center text-[11px] text-muted-foreground">Aperçu administrateur de l'offre affichée aux membres gratuits</p>}
+            <PremiumCountdown prices={prices} today={today} signupAt={signupAt} settings={settings} />
+          </>
         )}
 
         {ready && isPremium && (

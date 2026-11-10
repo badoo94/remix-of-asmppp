@@ -28,3 +28,10 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Method content is DB-driven (`method_pages`, `method_rects`) and always rendered through `src/components/method/A4Page.tsx`; why: one A4 template must present any text (reader, editor, AI output).
+- Rectangle/mask coordinates are stored in page percentages; why: overlays must follow the page zoom on any screen.
+- Premium status lives on `profiles.is_premium`, changed only by admin, `redeem_activation_code`, or the paid-order trigger; why: users must never self-grant premium.
+- Public settings live in `app_settings`, secrets (AI key, Moneroo key) in admin-only `admin_settings`; why: keep keys unreadable by visitors.
+- Storage buckets are private; method media uses long-lived signed URLs, premium files are signed at view time; why: workspace blocks public buckets.
