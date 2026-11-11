@@ -45,11 +45,11 @@ export function sharedAudio(): HTMLAudioElement {
 /** Must be called synchronously inside a click/tap handler. */
 export function unlockAudio() {
   const a = sharedAudio();
-  if (a.dataset.unlocked) return;
-  a.dataset.unlocked = "1";
+  if (a.dataset['unlocked']) return;
+  a.dataset['unlocked'] = "1";
   a.src = SILENT_WAV;
   a.play().catch(() => {
-    delete a.dataset.unlocked;
+    delete a.dataset['unlocked'];
   });
 }
 
