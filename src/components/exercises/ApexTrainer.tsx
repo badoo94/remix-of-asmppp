@@ -7,6 +7,8 @@ import { appSettingsQuery, DEFAULT_APP_CONFIG } from "@/lib/settings";
 import { signedPremiumUrl } from "@/lib/upload";
 import { usePremiumCheckout } from "@/components/PaymentProvider";
 import { cn } from "@/lib/utils";
+import { getExerciseClip } from "@/lib/tts.functions";
+import { cachedClip, hasNativeSpeech, markNativeBroken, sharedAudio, unlockAudio } from "@/lib/speech";
 import {
   belly,
   classic,
