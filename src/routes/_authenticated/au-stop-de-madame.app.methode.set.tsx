@@ -60,7 +60,11 @@ function MethodEditor() {
   const removed = useRef({ pages: [] as string[], rects: [] as string[] });
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editing, setEditing] = useState<MethodRect | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = state?.rects.find((r) => r.id === editingId) ?? null;
+  // Double tap detection: mobile browsers don't fire dblclick on draggable rectangles.
+  const lastTap = useRef<{ id: string; t: number } | null>(null);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (data && !state) setState(structuredClone(data));
@@ -128,21 +132,34 @@ function MethodEditor() {
     update((s) => ({ ...s, rects: s.rects.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
   }
 
-  function saveRectConfig(r: MethodRect) {
+  /** Live edit from the settings modal; rectangles chosen by a reveal button are hidden until clicked. */
+  function changeRect(r: MethodRect) {
     update((s) => {
-      let rects = s.rects.map((x) => (x.id === r.id ? r : x));
-      if (r.config.contentType === "button_reveal" && r.config.targetRectId) {
-        rects = rects.map((x) => (x.id === r.config.targetRectId ? { ...x, config: { ...x.config, revealOnly: true } } : x));
-      }
-      return { ...s, rects };
+      const rects = s.rects.map((x) => (x.id === r.id ? r : x));
+      const targets = new Set(
+        rects.filter((x) => x.config.contentType === "button_reveal" && x.config.targetRectId).map((x) => x.config.targetRectId),
+      );
+      return {
+        ...s,
+        rects: rects.map((x) =>
+          x.kind === "content" && !!x.config.revealOnly !== targets.has(x.id) ? { ...x, config: { ...x.config, revealOnly: targets.has(x.id) } } : x,
+        ),
+      };
     });
-    setEditing(null);
+  }
+
+  function onRectTap(id: string) {
+    const now = Date.now();
+    if (lastTap.current && lastTap.current.id === id && now - lastTap.current.t < 450) {
+      lastTap.current = null;
+      setEditingId(id);
+    } else lastTap.current = { id, t: now };
   }
 
   function deleteRect(id: string) {
     removed.current.rects.push(id);
     update((s) => ({ ...s, rects: s.rects.filter((r) => r.id !== id) }));
-    setEditing(null);
+    setEditingId(null);
   }
 
   async function uploadPageImage(pageId: string, file: File | undefined) {
@@ -278,12 +295,20 @@ function MethodEditor() {
                         bounds="parent"
                         size={{ width: box.width, height: box.height }}
                         position={{ x: box.x, y: box.y }}
-                        disableDragging={r.full_page}
+                        disableDragging={false}
                         enableResizing={!r.full_page}
                         style={{ zIndex: r.kind === "mask" ? 25 : 15 }}
-                        onDragStop={(_e, d) =>
-                          setRect(r.id, { x_percent: (d.x / PAGE_W) * 100, y_percent: (d.y / PAGE_H) * 100 })
-                        }
+                        onDragStart={(_e, d) => {
+                          dragStart.current = { x: d.x, y: d.y };
+                        }}
+                        onDragStop={(_e, d) => {
+                          const st = dragStart.current;
+                          if (st && Math.abs(d.x - st.x) < 4 && Math.abs(d.y - st.y) < 4) {
+                            onRectTap(r.id);
+                            return;
+                          }
+                          setRect(r.id, { x_percent: (d.x / PAGE_W) * 100, y_percent: (d.y / PAGE_H) * 100 });
+                        }}
                         onResizeStop={(_e, _dir, el: HTMLElement, _delta, pos: { x: number; y: number }) =>
                           setRect(r.id, {
                             width_percent: (el.offsetWidth / PAGE_W) * 100,
@@ -294,7 +319,7 @@ function MethodEditor() {
                         }
                       >
                         <div
-                          onDoubleClick={() => setEditing(r)}
+                          onDoubleClick={() => setEditingId(r.id)}
                           className={
                             r.kind === "mask"
                               ? "relative h-full w-full border-2 border-dashed border-brand-alert"
@@ -328,8 +353,8 @@ function MethodEditor() {
         rect={editing}
         allRects={state?.rects ?? []}
         pageNumberOf={pageNumberOf}
-        onClose={() => setEditing(null)}
-        onSave={saveRectConfig}
+        onChange={changeRect}
+        onClose={() => setEditingId(null)}
         onDelete={deleteRect}
       />
     </div>

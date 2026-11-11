@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
+import { RotateCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { distributeTextChunk } from "@/lib/ai.functions";
 import { chunkPages, extractPdfPages } from "@/lib/pdf-text";
+
+type Job = { chunks: string[]; next: number; position: number; created: number; note: string };
+
+function friendly(e: unknown, part: number) {
+  const msg = e instanceof Error ? e.message : String(e ?? "");
+  if (/failed to fetch|content-type|networkerror|load failed|network|timeout|504|502/i.test(msg)) {
+    return `La connexion a été coupée pendant la partie ${part}. Cliquez sur « Reprendre » pour continuer là où ça s'est arrêté.`;
+  }
+  return `Partie ${part} : ${msg || "répartition impossible"}`;
+}
 
 /** "Ask box": the admin drops a PDF and the AI spreads its text into the A4 template pages. */
 export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> }) {
@@ -23,6 +33,54 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const [canResume, setCanResume] = useState(false);
+  const job = useRef<Job | null>(null);
+
+  async function process() {
+    const j = job.current;
+    if (!j) return;
+    setBusy(true);
+    setCanResume(false);
+    try {
+      for (; j.next < j.chunks.length; j.next++) {
+        const i = j.next;
+        setStatus(`Répartition par l'IA : partie ${i + 1} / ${j.chunks.length}…`);
+        let pages;
+        try {
+          ({ pages } = await run({ data: { text: j.chunks[i] ?? "", note: j.note, part: i + 1, total: j.chunks.length } }));
+        } catch (e) {
+          throw new Error(friendly(e, i + 1));
+        }
+        if (pages.length) {
+          const rows = pages.map((p) => ({
+            position: ++j.position,
+            type: p.type,
+            partie: p.partie,
+            chapitre: p.chapitre,
+            titre: p.titre,
+            sous_chapitre: p.sousChapitre,
+            body: p.body,
+          }));
+          const { error } = await supabase.from("method_pages").insert(rows);
+          if (error) throw new Error(`Partie ${i + 1} : ${error.message}`);
+          j.created += rows.length;
+        }
+        setProgress(Math.round(((i + 1) / j.chunks.length) * 100));
+      }
+      await qc.invalidateQueries({ queryKey: ["method"] });
+      setStatus(`Terminé : ${j.created} pages créées.`);
+      toast.success(`${j.created} pages ajoutées à la méthode`);
+      job.current = null;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Répartition impossible";
+      setStatus(msg);
+      toast.error(msg);
+      setCanResume(true);
+      await qc.invalidateQueries({ queryKey: ["method"] });
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function start() {
     if (!file) {
@@ -32,13 +90,12 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
     if (mode === "replace" && !window.confirm("Remplacer toutes les pages existantes de la méthode ?")) return;
     setBusy(true);
     setProgress(0);
+    setCanResume(false);
     try {
       await beforeRun();
       setStatus("Lecture du PDF…");
-      const pdfPages = await extractPdfPages(file);
-      const chunks = chunkPages(pdfPages);
+      const chunks = chunkPages(await extractPdfPages(file));
       if (!chunks.length) throw new Error("Aucun texte trouvé dans ce PDF");
-
       let position = 0;
       if (mode === "replace") {
         const { error } = await supabase.from("method_pages").delete().gte("position", -1_000_000);
@@ -47,37 +104,15 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
         const { data } = await supabase.from("method_pages").select("position").order("position", { ascending: false }).limit(1);
         position = data?.[0]?.position ?? 0;
       }
-
-      let created = 0;
-      for (let i = 0; i < chunks.length; i++) {
-        setStatus(`Répartition par l'IA : partie ${i + 1} / ${chunks.length}…`);
-        const { pages } = await run({ data: { text: chunks[i] ?? "", note, part: i + 1, total: chunks.length } });
-        if (pages.length) {
-          const rows = pages.map((p) => ({
-            position: ++position,
-            type: p.type,
-            partie: p.partie,
-            chapitre: p.chapitre,
-            titre: p.titre,
-            sous_chapitre: p.sousChapitre,
-            body: p.body,
-          }));
-          const { error } = await supabase.from("method_pages").insert(rows);
-          if (error) throw error;
-          created += rows.length;
-        }
-        setProgress(Math.round(((i + 1) / chunks.length) * 100));
-      }
-      await qc.invalidateQueries({ queryKey: ["method"] });
-      setStatus(`Terminé : ${created} pages créées.`);
-      toast.success(`${created} pages ajoutées à la méthode`);
+      job.current = { chunks, next: 0, position, created: 0, note };
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Répartition impossible";
       setStatus(msg);
       toast.error(msg);
-    } finally {
       setBusy(false);
+      return;
     }
+    await process();
   }
 
   return (
@@ -106,6 +141,11 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
           <Progress value={progress} />
           <p className="text-xs text-muted-foreground">{status}</p>
         </div>
+      )}
+      {canResume && job.current && (
+        <Button variant="gold" className="w-full" onClick={process} disabled={busy}>
+          <RotateCw /> Reprendre à la partie {job.current.next + 1}
+        </Button>
       )}
       <Button variant="cta" className="w-full" onClick={start} disabled={busy || !file}>
         {busy ? "Répartition en cours…" : "Lancer la répartition"}

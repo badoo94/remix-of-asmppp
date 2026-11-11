@@ -13,7 +13,7 @@ export const FONT_OPTIONS: { value: string; label: string; css: string }[] = [
 
 export const DESIGN_OPTIONS: { value: TextDesign; label: string }[] = [
   { value: "plain", label: "Simple" },
-  { value: "card", label: "Carte claire" },
+  { value: "card", label: "Carte blanche" },
   { value: "highlight", label: "Surligné" },
   { value: "quote", label: "Citation" },
   { value: "dark", label: "Bloc sombre" },

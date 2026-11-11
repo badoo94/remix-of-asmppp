@@ -7,6 +7,8 @@ import { appSettingsQuery, DEFAULT_APP_CONFIG } from "@/lib/settings";
 import { signedPremiumUrl } from "@/lib/upload";
 import { usePremiumCheckout } from "@/components/PaymentProvider";
 import { cn } from "@/lib/utils";
+import { getExerciseClip } from "@/lib/tts.functions";
+import { cachedClip, hasNativeSpeech, markNativeBroken, sharedAudio, unlockAudio } from "@/lib/speech";
 import {
   belly,
   classic,
@@ -111,7 +113,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
     }
     return () => {
       cancelAnimationFrame(E.current.raf);
-      window.speechSynthesis?.cancel();
+      hush();
     };
   }, []);
 
@@ -154,12 +156,58 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
     tone(400, 0.2, "sine", 0.35);
     tone(600, 0.2, "sine", 0.35, 0.25);
   };
+  // ---------- voice cues ----------
+  // Device voice when it works, otherwise cloud clips (in-app browsers have no device voice).
+  const sayToken = useRef(0);
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const exerciseClip = (text: string, l: Lang) =>
+    cachedClip(`ex|${l}|${text}`, () => getExerciseClip({ data: { text, lang: l } }).then((r) => r.url));
+  function hush() {
+    sayToken.current++;
+    window.speechSynthesis?.cancel();
+    sharedAudio().pause();
+  }
+  const sayCloud = (text: string, l: Lang, t: number) => {
+    exerciseClip(text, l)
+      .then((url) => {
+        if (t !== sayToken.current) return;
+        const a = sharedAudio();
+        a.src = url;
+        a.play().catch(() => {});
+      })
+      .catch(() => {});
+  };
+  const nativeOk = () => hasNativeSpeech() && window.speechSynthesis.getVoices().length > 0;
   const say = (text: string) => {
-    if (!ctx.current.voice || !("speechSynthesis" in window)) return;
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = ctx.current.lang === "fr" ? "fr-FR" : "en-US";
-    speechSynthesis.speak(u);
+    if (!ctx.current.voice) return;
+    const l = ctx.current.lang;
+    const t = ++sayToken.current;
+    sharedAudio().pause();
+    if (!nativeOk()) return sayCloud(text, l, t);
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text.toLocaleLowerCase(l));
+    u.lang = l === "fr" ? "fr-FR" : "en-US";
+    utterRef.current = u;
+    let started = false;
+    u.onstart = () => {
+      started = true;
+    };
+    // Some browsers drop speak() right after cancel().
+    window.setTimeout(() => t === sayToken.current && synth.speak(u), 60);
+    window.setTimeout(() => {
+      if (started || t !== sayToken.current) return;
+      markNativeBroken();
+      synth.cancel();
+      sayCloud(text, l, t);
+    }, 2000);
+  };
+  const prefetchCues = () => {
+    if (!ctx.current.voice || nativeOk()) return;
+    const l = ctx.current.lang;
+    (["squeeze", "relax", "down", "up", "breathe", "inflateText", "deflateText", "rest"] as const).forEach((k) =>
+      exerciseClip(words[l][k], l).catch(() => {}),
+    );
   };
 
   // ---------- engine ----------
@@ -244,6 +292,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
   }
 
   function togglePause() {
+    unlockAudio();
     const e = E.current;
     e.paused = !e.paused;
     setPausedUI(e.paused);
@@ -251,7 +300,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
       cancelAnimationFrame(e.raf);
       e.pausedAt = performance.now();
       setPrompt(wl("paused"));
-      window.speechSynthesis?.pause();
+      hush();
     } else {
       if (!e.startedAt) {
         e.startedAt = performance.now();
@@ -261,13 +310,12 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
         e.phaseStart = performance.now() - (e.duration - e.left * 1000);
         e.raf = requestAnimationFrame(loop);
       }
-      window.speechSynthesis?.resume();
     }
   }
 
   function endSet() {
     cancelAnimationFrame(E.current.raf);
-    window.speechSynthesis?.cancel();
+    hush();
     const c = ctx.current;
     E.current.paused = true;
     setPausedUI(true);
@@ -293,6 +341,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
     setTimer(t === "classic" ? d.hold : t === "squat" ? d.d : d.g);
     setRepBar(0);
     ring(0, IDLE);
+    prefetchCues();
     setScreen("training");
   }
 
@@ -321,7 +370,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
     setPausedUI(true);
     if (e.raf) cancelAnimationFrame(e.raf);
     e.raf = 0;
-    window.speechSynthesis?.cancel();
+    hush();
     e.phase = null;
     setScreen(ctx.current.returnTo === "custom" ? "custom" : "days");
   }
@@ -647,7 +696,7 @@ export function ApexTrainer({ isPremium, signedIn }: { isPremium: boolean; signe
                   const v = !voice;
                   setVoice(v);
                   ctx.current.voice = v;
-                  if (!v) window.speechSynthesis?.cancel();
+                  if (!v) hush();
                   save({ voice: v });
                 }}
               >
