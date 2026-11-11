@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Lock, Pause, Play, Square } from "lucide-react";
+import { Loader2, Lock, Pause, Play, Square } from "lucide-react";
 import type { VoiceGender } from "./useTTS";
 import { cn } from "@/lib/utils";
 
 interface Props {
   premium: boolean;
   playing: boolean;
+  loading?: boolean;
   page: number;
   total: number;
   auto: boolean;
@@ -48,7 +49,7 @@ export function TTSBar(p: Props) {
         onClick={() => (p.playing ? p.onPause() : p.onPlay())}
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cta text-brand-ink shadow-glow"
       >
-        {p.playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        {p.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : p.playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
       </button>
       <button type="button" aria-label="Arrêter" onClick={p.onStop} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
         <Square className="h-3.5 w-3.5" />

@@ -145,6 +145,7 @@ function MethodReader() {
         <TTSBar
           premium={isPremium}
           playing={tts.playing}
+          loading={tts.loading}
           page={tts.page}
           total={pages.length}
           auto={tts.auto}
