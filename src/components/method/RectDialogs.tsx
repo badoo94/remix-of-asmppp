@@ -167,7 +167,7 @@ export function RectConfigDialog({ rect, allRects, pageNumberOf, onChange, onClo
                   className={cn(selectClass, "border-2 border-brand-gold")}
                   style={chevron}
                   value={c.contentType ?? ""}
-                  onChange={(e) => setC({ contentType: (e.target.value || undefined) as ContentType | undefined })}
+                  onChange={(e) => setC({ contentType: e.target.value as ContentType })}
                 >
                   <option value="">— Choisir —</option>
                   {CONTENT_TYPES.map((t) => (
@@ -274,7 +274,7 @@ export function RectConfigDialog({ rect, allRects, pageNumberOf, onChange, onClo
                     className={selectClass}
                     style={chevron}
                     value={c.targetRectId ?? ""}
-                    onChange={(e) => setC({ targetRectId: e.target.value || undefined })}
+                    onChange={(e) => setC({ targetRectId: e.target.value })}
                   >
                     <option value="">— Choisir —</option>
                     {targets.map((r) => (
