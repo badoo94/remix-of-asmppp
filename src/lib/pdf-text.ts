@@ -23,18 +23,35 @@ export async function extractPdfPages(file: File): Promise<string[]> {
   return pages;
 }
 
-/** Group PDF pages into chunks small enough for one AI call. */
-export function chunkPages(pages: string[], maxChars = 12_000): string[] {
+/** Split text into pieces of at most `max` chars, cutting at paragraph, line or sentence ends. */
+function splitText(text: string, max: number): string[] {
+  const out: string[] = [];
+  let rest = text;
+  while (rest.length > max) {
+    const win = rest.slice(0, max);
+    let cut = win.lastIndexOf("\n\n");
+    if (cut < max * 0.5) cut = win.lastIndexOf("\n");
+    if (cut < max * 0.5) cut = Math.max(win.lastIndexOf(". "), win.lastIndexOf("! "), win.lastIndexOf("? ")) + 1;
+    if (cut < max * 0.5) cut = win.lastIndexOf(" ");
+    if (cut <= 0) cut = max;
+    out.push(rest.slice(0, cut).trim());
+    rest = rest.slice(cut).trim();
+  }
+  if (rest) out.push(rest);
+  return out;
+}
+
+/**
+ * Group PDF pages into chunks small enough for one quick AI call
+ * (long calls get cut by the network before the AI answers).
+ */
+export function chunkPages(pages: string[], maxChars = 4_500): string[] {
   const chunks: string[] = [];
   let buf = "";
-  for (const p of pages) {
-    if (buf && buf.length + p.length > maxChars) {
+  for (const p of pages.flatMap((x) => splitText(x, maxChars))) {
+    if (buf && buf.length + p.length + 2 > maxChars) {
       chunks.push(buf);
       buf = "";
-    }
-    if (p.length > maxChars) {
-      for (let i = 0; i < p.length; i += maxChars) chunks.push(p.slice(i, i + maxChars));
-      continue;
     }
     buf += (buf ? "\n\n" : "") + p;
   }
