@@ -95,6 +95,7 @@ export type Database = {
       method_pages: {
         Row: {
           body: string
+          cards: Json
           chapitre: string
           id: string
           image_size: number
@@ -108,6 +109,7 @@ export type Database = {
         }
         Insert: {
           body?: string
+          cards?: Json
           chapitre?: string
           id?: string
           image_size?: number
@@ -121,6 +123,7 @@ export type Database = {
         }
         Update: {
           body?: string
+          cards?: Json
           chapitre?: string
           id?: string
           image_size?: number

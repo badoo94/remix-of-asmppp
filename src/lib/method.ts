@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 
-export type PageType = "blank" | "frame" | "chapter" | "subchapter" | "full";
+export type PageType = "blank" | "frame" | "chapter" | "subchapter" | "full" | "custom";
 
 export const PAGE_TYPE_LABELS: Record<PageType, string> = {
   blank: "Page vierge sans cadre",
@@ -10,7 +10,34 @@ export const PAGE_TYPE_LABELS: Record<PageType, string> = {
   chapter: "Page avec chapitre et cadre",
   subchapter: "Page avec sous-chapitre et cadre",
   full: "Page avec partie, chapitre, sous-chapitre et cadre",
+  custom: "Page personnalisée",
 };
+
+/** One card of a "Page personnalisée" carousel: free HTML rendered as a web page. */
+export interface CustomCard {
+  id: string;
+  color: string;
+  html: string;
+}
+
+export const CARD_COLORS = ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b", "#06b6d4", "#e11d48", "#84cc16"];
+
+export function newCard(index: number): CustomCard {
+  return {
+    id: crypto.randomUUID(),
+    color: CARD_COLORS[index % CARD_COLORS.length]!,
+    html: '<div style="padding:30px; text-align:center; font-family:sans-serif;"><h3>Nouvelle Carte</h3><p>Modifiez ce code dans la configuration</p></div>',
+  };
+}
+
+export function defaultCards(): CustomCard[] {
+  const names = ["Mexican Buddha Bowl", "Avocado & Green Salad", "Quinoa Power Bowl"];
+  return names.map((name, i) => ({
+    id: crypto.randomUUID(),
+    color: CARD_COLORS[i]!,
+    html: `<div style="padding:40px;text-align:center;font-family:sans-serif;"><h2>${name}</h2><p style="color:#666;margin-top:10px;">Rendu HTML personnalisé ${i + 1}</p></div>`,
+  }));
+}
 
 export interface MethodPage {
   id: string;
@@ -23,6 +50,7 @@ export interface MethodPage {
   body: string;
   image_url: string | null;
   image_size: number;
+  cards: CustomCard[];
 }
 
 export type ContentType = "image" | "video" | "html" | "text" | "button_url" | "button_reveal";
@@ -76,7 +104,11 @@ export const methodQuery = queryOptions({
     if (pagesRes.error) throw pagesRes.error;
     if (rectsRes.error) throw rectsRes.error;
     return {
-      pages: (pagesRes.data ?? []).map((p) => ({ ...p, type: p.type as PageType })),
+      pages: (pagesRes.data ?? []).map((p) => ({
+        ...p,
+        type: p.type as PageType,
+        cards: Array.isArray(p.cards) ? (p.cards as unknown as CustomCard[]) : [],
+      })),
       rects: (rectsRes.data ?? []).map((r) => ({
         ...r,
         kind: r.kind as "content" | "mask",
@@ -117,6 +149,7 @@ export async function saveMethod(data: MethodData, removedPageIds: string[], rem
         body: p.body,
         image_url: p.image_url,
         image_size: p.image_size,
+        cards: p.cards as unknown as Json,
         updated_at: new Date().toISOString(),
       })),
     );
@@ -149,9 +182,10 @@ export function newPage(type: PageType): MethodPage {
     chapitre: type === "chapter" || type === "full" ? "Chapitre :" : "",
     titre: type === "chapter" || type === "full" ? "Titre du chapitre" : "",
     sous_chapitre: type === "subchapter" || type === "full" ? "1.1 SOUS-CHAPITRE" : "",
-    body: "<p>Votre texte…</p>",
+    body: type === "custom" ? "" : "<p>Votre texte…</p>",
     image_url: null,
     image_size: 100,
+    cards: type === "custom" ? defaultCards() : [],
   };
 }
 
