@@ -65,7 +65,7 @@ export const distributeTextChunk = createServerFn({ method: "POST" })
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: cfg.aiInstruction }] },
             contents: [{ role: "user", parts: [{ text: userMsg }] }],
-            generationConfig: { responseMimeType: "application/json", temperature: 0 },
+            generationConfig: { responseMimeType: "application/json", temperature: 0, thinkingConfig: { thinkingBudget: 1024 } },
           }),
         },
       );
@@ -84,6 +84,8 @@ export const distributeTextChunk = createServerFn({ method: "POST" })
             { role: "user", content: userMsg },
           ],
           response_format: { type: "json_object" },
+          // Copy-and-split work needs little reasoning; the default made each part take ~100s and the connection was cut.
+          reasoning_effort: "low",
         });
         const msg = completion.choices?.[0]?.message?.content;
         content = typeof msg === "string" ? msg : "";

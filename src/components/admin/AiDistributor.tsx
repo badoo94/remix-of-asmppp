@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { distributeTextChunk } from "@/lib/ai.functions";
 import { chunkPages, extractPdfPages } from "@/lib/pdf-text";
 
-type Job = { chunks: string[]; next: number; position: number; created: number; note: string };
+type Job = { chunks: string[]; next: number; position: number; created: number; note: string; oldPageIds: string[] };
 
 function friendly(e: unknown, part: number) {
   const msg = e instanceof Error ? e.message : String(e ?? "");
@@ -67,6 +67,12 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
         }
         setProgress(Math.round(((i + 1) / j.chunks.length) * 100));
       }
+      // "Remplacer tout": old pages are removed only once the new ones are all in place.
+      if (j.oldPageIds.length) {
+        const { error } = await supabase.from("method_pages").delete().in("id", j.oldPageIds);
+        if (error) throw new Error(`Suppression des anciennes pages : ${error.message}`);
+        j.oldPageIds = [];
+      }
       await qc.invalidateQueries({ queryKey: ["method"] });
       setStatus(`Terminé : ${j.created} pages créées.`);
       toast.success(`${j.created} pages ajoutées à la méthode`);
@@ -96,15 +102,11 @@ export function AiDistributor({ beforeRun }: { beforeRun: () => Promise<void> })
       setStatus("Lecture du PDF…");
       const chunks = chunkPages(await extractPdfPages(file));
       if (!chunks.length) throw new Error("Aucun texte trouvé dans ce PDF");
-      let position = 0;
-      if (mode === "replace") {
-        const { error } = await supabase.from("method_pages").delete().gte("position", -1_000_000);
-        if (error) throw error;
-      } else {
-        const { data } = await supabase.from("method_pages").select("position").order("position", { ascending: false }).limit(1);
-        position = data?.[0]?.position ?? 0;
-      }
-      job.current = { chunks, next: 0, position, created: 0, note };
+      const { data: existing, error } = await supabase.from("method_pages").select("id, position").order("position", { ascending: false });
+      if (error) throw error;
+      const position = existing?.[0]?.position ?? 0;
+      const oldPageIds = mode === "replace" ? (existing ?? []).map((p) => p.id) : [];
+      job.current = { chunks, next: 0, position, created: 0, note, oldPageIds };
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Répartition impossible";
       setStatus(msg);

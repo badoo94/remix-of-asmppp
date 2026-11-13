@@ -35,3 +35,6 @@ use the editor.
 - Premium status lives on `profiles.is_premium`, changed only by admin, `redeem_activation_code`, or the paid-order trigger; why: users must never self-grant premium.
 - Public settings live in `app_settings`, secrets (AI key, Moneroo key) in admin-only `admin_settings`; why: keep keys unreadable by visitors.
 - Storage buckets are private; method media uses long-lived signed URLs, premium files are signed at view time; why: workspace blocks public buckets.
+- Text-to-speech uses the device voice when it actually starts, else cloud clips (`src/lib/tts.*`, cached in `media/tts/`) played via one tap-unlocked audio element (`src/lib/speech.ts`); why: in-app/WebView browsers have no device voice.
+- AI PDF distribution sends ~4.5k-char parts with low reasoning effort and is resumable; why: long AI calls were cut by the network before answering.
+- Editor rectangles open settings on double tap detected from react-rnd drag start/stop; why: mobile browsers never fire dblclick on draggable elements.
