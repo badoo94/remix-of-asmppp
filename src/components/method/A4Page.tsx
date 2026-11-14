@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { MethodPage } from "@/lib/method";
 import { FitBody } from "./FitBody";
 import { Editable } from "./Editable";
+import { CustomCarousel } from "./CustomPage";
 import { PAGE_H, PAGE_W } from "./useScale";
 import { cn } from "@/lib/utils";
 
@@ -18,13 +19,31 @@ interface Props {
   onFieldChange?: (field: Field, value: string) => void;
   overlay?: ReactNode;
   pageRef?: (el: HTMLDivElement | null) => void;
+  /** Extra controls drawn on top of a custom page (e.g. fullscreen button). */
+  controls?: ReactNode;
 }
 
 /**
  * The "Méthode" A4 design template. Any text content is rendered through this layout.
  * Section titles sit above the frame; continuation pages leave the header empty.
  */
-export function A4Page({ page, pageNumber, scale, fontSize, footerText, editable, reading, onFieldChange, overlay, pageRef }: Props) {
+export function A4Page({ page, pageNumber, scale, fontSize, footerText, editable, reading, onFieldChange, overlay, pageRef, controls }: Props) {
+  if (page.type === "custom") {
+    // Web page: rendered at real device size (not scaled) so its HTML stays readable; overlays keep page percentages.
+    return (
+      <div ref={pageRef} data-page={pageNumber} className="mp-page-shell" style={{ width: PAGE_W * scale, height: PAGE_H * scale }}>
+        <CustomCarousel cards={page.cards} interactive={!editable} />
+        {controls}
+        <div
+          className="pointer-events-none absolute left-0 top-0 z-20 origin-top-left [&>*]:pointer-events-auto"
+          style={{ width: PAGE_W, height: PAGE_H, transform: `scale(${scale})` }}
+        >
+          {overlay}
+        </div>
+      </div>
+    );
+  }
+
   const showPartie = page.type === "full" && (editable || page.partie);
   const showChapitre = (page.type === "chapter" || page.type === "full") && (editable || page.chapitre || page.titre);
   const showSous = (page.type === "subchapter" || page.type === "full") && (editable || page.sous_chapitre);

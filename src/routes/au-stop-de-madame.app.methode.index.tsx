@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useRef, useState, type MouseEvent } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronsDown, Maximize2 } from "lucide-react";
 import { methodQuery, rectsOverlap, type MethodRect } from "@/lib/method";
 import { appSettingsQuery, DEFAULT_APP_CONFIG } from "@/lib/settings";
 import { useAccess } from "@/lib/auth";
@@ -12,6 +12,7 @@ import { MaskContent, maskVisual } from "@/components/method/MaskView";
 import { TTSBar } from "@/components/method/TTSBar";
 import { useTTS } from "@/components/method/useTTS";
 import { usePremiumCheckout } from "@/components/PaymentProvider";
+import { CustomPageFullscreen } from "@/components/method/CustomPage";
 
 export const Route = createFileRoute("/au-stop-de-madame/app/methode/")({
   head: () => ({
@@ -37,11 +38,20 @@ function MethodReader() {
   const { ref, scale } = usePageScale(1.15);
   const pageEls = useRef(new Map<number, HTMLDivElement>());
   const [revealed, setRevealed] = useState<Record<string, Reveal>>({});
+  const [fullId, setFullId] = useState<string | null>(null);
+  const closeFull = useCallback(() => setFullId(null), []);
 
   const pages = data?.pages ?? [];
   const rects = data?.rects ?? [];
   const getPageEl = useCallback((n: number) => pageEls.current.get(n) ?? null, []);
   const tts = useTTS(getPageEl, pages.length);
+
+  /** "Sauter cette page": jump to the top of the next page (or the end of the method). */
+  function skipPage(n: number) {
+    const next = pageEls.current.get(n + 1);
+    const top = next ? next.getBoundingClientRect().top + window.scrollY - 64 : document.documentElement.scrollHeight;
+    window.scrollTo({ top, behavior: "smooth" });
+  }
 
   function onButton(rect: MethodRect, pageNumber: number, e: MouseEvent) {
     const c = rect.config;
@@ -91,7 +101,8 @@ function MethodReader() {
             .filter(([btnId]) => pageRects.some((r) => r.id === btnId))
             .map(([btnId, rv]) => ({ btnId, ...rv }));
 
-          return (
+          const custom = page.type === "custom";
+          const sheet = (
             <A4Page
               key={page.id}
               page={page}
@@ -104,6 +115,18 @@ function MethodReader() {
                 if (el) pageEls.current.set(n, el);
                 else pageEls.current.delete(n);
               }}
+              controls={
+                custom && masks.length === 0 ? (
+                  <button
+                    type="button"
+                    aria-label="Plein écran"
+                    onClick={() => setFullId(page.id)}
+                    className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-page-ink/80 text-page shadow-lg"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </button>
+                ) : null
+              }
               overlay={
                 <>
                   {contents.map((r) => (
@@ -138,8 +161,27 @@ function MethodReader() {
               }
             />
           );
+          if (!custom) return sheet;
+          const skip = (pos: "top" | "bottom") => (
+            <button
+              type="button"
+              onClick={() => skipPage(n)}
+              className={`absolute left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full bg-cta px-3 py-1.5 text-xs font-bold text-brand-ink shadow-glow ${pos === "top" ? "top-0 -translate-y-1/2" : "bottom-0 translate-y-1/2"}`}
+            >
+              <ChevronsDown className="h-3.5 w-3.5" /> Sauter cette page
+            </button>
+          );
+          return (
+            <div key={page.id} className="relative">
+              {skip("top")}
+              {sheet}
+              {skip("bottom")}
+            </div>
+          );
         })}
       </div>
+
+      {fullId && <CustomPageFullscreen cards={pages.find((p) => p.id === fullId)?.cards ?? []} onClose={closeFull} />}
 
       {pages.length > 0 && (
         <TTSBar

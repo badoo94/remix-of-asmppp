@@ -9,6 +9,7 @@ import {
   newPage,
   PAGE_TYPE_LABELS,
   saveMethod,
+  type CustomCard,
   type MethodData,
   type MethodPage,
   type MethodRect,
@@ -22,6 +23,7 @@ import { PAGE_H, PAGE_W, usePageScale } from "@/components/method/useScale";
 import { RectBody } from "@/components/method/RectContent";
 import { MaskContent, maskVisual } from "@/components/method/MaskView";
 import { RectConfigDialog } from "@/components/method/RectDialogs";
+import { CustomPageDialog } from "@/components/method/CustomPage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +67,9 @@ function MethodEditor() {
   // Double tap detection: mobile browsers don't fire dblclick on draggable rectangles.
   const lastTap = useRef<{ id: string; t: number } | null>(null);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const [customId, setCustomId] = useState<string | null>(null);
+  const customPage = state?.pages.find((p) => p.id === customId) ?? null;
+  const lastPageTap = useRef<{ id: string; t: number } | null>(null);
 
   useEffect(() => {
     if (data && !state) setState(structuredClone(data));
@@ -174,17 +179,44 @@ function MethodEditor() {
     }
   }
 
-  async function saveAll() {
+  /** Double tap / double click on a custom page opens its card configuration. */
+  function onPageTap(id: string, target: EventTarget) {
+    if ((target as HTMLElement).closest(".react-draggable, button, label")) return;
+    const now = Date.now();
+    if (lastPageTap.current && lastPageTap.current.id === id && now - lastPageTap.current.t < 450) {
+      lastPageTap.current = null;
+      setCustomId(id);
+    } else lastPageTap.current = { id, t: now };
+  }
+
+  function setCards(id: string, cards: CustomCard[]) {
+    const current = state?.pages.find((p) => p.id === id)?.cards;
+    if (current && JSON.stringify(current) === JSON.stringify(cards)) return;
+    setPage(id, { cards });
+  }
+
+  async function publishCards(id: string, cards: CustomCard[]) {
     if (!state) return;
+    const next = { ...state, pages: state.pages.map((p) => (p.id === id ? { ...p, cards } : p)) };
+    setState(next);
+    if (await saveAll(next)) setCustomId(null);
+    else setDirty(true);
+  }
+
+  async function saveAll(override?: MethodData) {
+    const data = override ?? state;
+    if (!data) return false;
     setSaving(true);
     try {
-      await saveMethod(state, removed.current.pages, removed.current.rects);
+      await saveMethod(data, removed.current.pages, removed.current.rects);
       removed.current = { pages: [], rects: [] };
       setDirty(false);
       await qc.invalidateQueries({ queryKey: ["method"] });
       toast.success("Toutes les modifications sont enregistrées");
+      return true;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Enregistrement impossible");
+      return false;
     } finally {
       setSaving(false);
     }
@@ -223,7 +255,7 @@ function MethodEditor() {
       <header className="sticky top-0 z-40 flex items-center justify-between gap-2 border-b border-page-ink/10 bg-page px-4 py-3 text-page-ink">
         <Link to="/au-stop-de-madame/edit" className="text-sm font-medium underline underline-offset-4">← Retour</Link>
         <span className="text-sm opacity-70">{state?.pages.length ?? 0} pages</span>
-        <Button variant="page" onClick={saveAll} disabled={saving || !dirty}>
+        <Button variant="page" onClick={() => saveAll()} disabled={saving || !dirty}>
           <Save /> {saving ? "Enregistrement…" : "Enregistrer tout"}
         </Button>
       </header>
@@ -247,12 +279,17 @@ function MethodEditor() {
                   <InsertMenu index={i} pageId={page.id} />
                 </div>
               </div>
-              <div className="relative">
+              <div className="relative" onClick={page.type === "custom" ? (e) => onPageTap(page.id, e.target) : undefined}>
+                {page.type === "custom" && (
+                  <span className="absolute left-2 top-2 z-30 rounded bg-page-ink px-2 py-1 text-[10px] text-page shadow">
+                    Page personnalisée · double-clic pour configurer
+                  </span>
+                )}
                 <div className="absolute right-2 top-2 z-30 flex items-center gap-1.5">
-                  <label className="flex h-8 cursor-pointer items-center gap-1 rounded-full bg-page-ink px-2.5 text-xs text-page shadow" title="Téléverser une image pleine page">
+                  {page.type !== "custom" && <label className="flex h-8 cursor-pointer items-center gap-1 rounded-full bg-page-ink px-2.5 text-xs text-page shadow" title="Téléverser une image pleine page">
                     <ImagePlus className="h-3.5 w-3.5" />
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadPageImage(page.id, e.target.files?.[0])} />
-                  </label>
+                  </label>}
                   <button
                     type="button"
                     onClick={() => deletePage(page.id)}
@@ -348,6 +385,15 @@ function MethodEditor() {
           );
         })}
       </div>
+
+      <CustomPageDialog
+        open={!!customPage}
+        cards={customPage?.cards ?? []}
+        saving={saving}
+        onApply={(cards) => customPage && setCards(customPage.id, cards)}
+        onPublish={(cards) => customPage && publishCards(customPage.id, cards)}
+        onClose={() => setCustomId(null)}
+      />
 
       <RectConfigDialog
         rect={editing}
