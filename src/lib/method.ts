@@ -18,6 +18,19 @@ export interface CustomCard {
   id: string;
   color: string;
   html: string;
+  /** "html" (default): free HTML. "media": video/GIF + timed texts + a button that dismisses the card. */
+  kind?: "html" | "media";
+  mediaUrl?: string;
+  mediaType?: "video" | "image";
+  texts?: CardText[];
+  buttonText?: string;
+}
+
+/** A text shown over a media card for `seconds` before the next one replaces it. */
+export interface CardText {
+  id: string;
+  text: string;
+  seconds: number;
 }
 
 export const CARD_COLORS = ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b", "#06b6d4", "#e11d48", "#84cc16"];
@@ -27,6 +40,23 @@ export function newCard(index: number): CustomCard {
     id: crypto.randomUUID(),
     color: CARD_COLORS[index % CARD_COLORS.length]!,
     html: '<div style="padding:30px; text-align:center; font-family:sans-serif;"><h3>Nouvelle Carte</h3><p>Modifiez ce code dans la configuration</p></div>',
+  };
+}
+
+export function newTextLine(): CardText {
+  return { id: crypto.randomUUID(), text: "", seconds: 4 };
+}
+
+export function newMediaCard(index: number): CustomCard {
+  return {
+    id: crypto.randomUUID(),
+    color: CARD_COLORS[index % CARD_COLORS.length]!,
+    html: "",
+    kind: "media",
+    mediaUrl: "",
+    mediaType: "video",
+    texts: [newTextLine()],
+    buttonText: "Continuer",
   };
 }
 

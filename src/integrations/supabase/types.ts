@@ -92,6 +92,24 @@ export type Database = {
         }
         Relationships: []
       }
+      dismissed_cards: {
+        Row: {
+          card_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       method_pages: {
         Row: {
           body: string
