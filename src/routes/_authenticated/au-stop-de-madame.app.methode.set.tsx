@@ -19,7 +19,7 @@ import { appSettingsQuery, DEFAULT_APP_CONFIG } from "@/lib/settings";
 import { useAccess } from "@/lib/auth";
 import { uploadMedia } from "@/lib/upload";
 import { A4Page } from "@/components/method/A4Page";
-import { PAGE_H, PAGE_W, usePageScale } from "@/components/method/useScale";
+import { usePageScale } from "@/components/method/useScale";
 import { RectBody } from "@/components/method/RectContent";
 import { MaskContent, maskVisual } from "@/components/method/MaskView";
 import { RectConfigDialog } from "@/components/method/RectDialogs";
@@ -279,7 +279,7 @@ function MethodEditor() {
                   <InsertMenu index={i} pageId={page.id} />
                 </div>
               </div>
-              <div className="relative" onClick={page.type === "custom" ? (e) => onPageTap(page.id, e.target) : undefined}>
+              <div className={page.type === "custom" ? "relative w-full" : "relative"} onClick={page.type === "custom" ? (e) => onPageTap(page.id, e.target) : undefined}>
                 {page.type === "custom" && (
                   <span className="absolute left-2 top-2 z-30 rounded bg-page-ink px-2 py-1 text-[10px] text-page shadow">
                     Page personnalisée · double-clic pour configurer
@@ -316,19 +316,19 @@ function MethodEditor() {
                   footerText={settings.footerText}
                   editable
                   onFieldChange={(f, v) => setPage(page.id, { [f]: v } as Partial<MethodPage>)}
-                  overlay={pageRects.map((r) => {
+                  overlay={({ width: LW, height: LH, scale: LS }) => pageRects.map((r) => {
                     const box = r.full_page
-                      ? { x: 0, y: 0, width: PAGE_W, height: PAGE_H }
+                      ? { x: 0, y: 0, width: LW, height: LH }
                       : {
-                          x: (r.x_percent / 100) * PAGE_W,
-                          y: (r.y_percent / 100) * PAGE_H,
-                          width: (r.width_percent / 100) * PAGE_W,
-                          height: (r.height_percent / 100) * PAGE_H,
+                          x: (r.x_percent / 100) * LW,
+                          y: (r.y_percent / 100) * LH,
+                          width: (r.width_percent / 100) * LW,
+                          height: (r.height_percent / 100) * LH,
                         };
                     return (
                       <Rnd
                         key={r.id}
-                        scale={scale}
+                        scale={LS}
                         bounds="parent"
                         size={{ width: box.width, height: box.height }}
                         position={{ x: box.x, y: box.y }}
@@ -344,14 +344,14 @@ function MethodEditor() {
                             onRectTap(r.id);
                             return;
                           }
-                          setRect(r.id, { x_percent: (d.x / PAGE_W) * 100, y_percent: (d.y / PAGE_H) * 100 });
+                          setRect(r.id, { x_percent: (d.x / LW) * 100, y_percent: (d.y / LH) * 100 });
                         }}
                         onResizeStop={(_e, _dir, el: HTMLElement, _delta, pos: { x: number; y: number }) =>
                           setRect(r.id, {
-                            width_percent: (el.offsetWidth / PAGE_W) * 100,
-                            height_percent: (el.offsetHeight / PAGE_H) * 100,
-                            x_percent: (pos.x / PAGE_W) * 100,
-                            y_percent: (pos.y / PAGE_H) * 100,
+                            width_percent: (el.offsetWidth / LW) * 100,
+                            height_percent: (el.offsetHeight / LH) * 100,
+                            x_percent: (pos.x / LW) * 100,
+                            y_percent: (pos.y / LH) * 100,
                           })
                         }
                       >

@@ -203,8 +203,15 @@ export function SettingsModal({ open, onOpenChange }: { open: boolean; onOpenCha
                 <Input value={cfg.introToday} onChange={(e) => set({ introToday: e.target.value })} />
               </div>
               <div className="space-y-1.5">
+                <Label>Introduction du lendemain</Label>
+                <Input value={cfg.introTomorrow} onChange={(e) => set({ introTomorrow: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
                 <Label>Introduction des autres jours</Label>
                 <Input value={cfg.introLater} onChange={(e) => set({ introLater: e.target.value })} />
+                <p className="text-xs text-muted-foreground">
+                  {"{prix}"} est remplacé par le prix du jour et {"{rang}"} par son rang (ex : « 3ème »).
+                </p>
               </div>
             </TabsContent>
 

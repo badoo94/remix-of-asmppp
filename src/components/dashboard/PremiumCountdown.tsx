@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import type { DayPrice } from "@/lib/premium-offer";
-import { TIMER_COLORS, formatMoney, splitElapsed } from "@/lib/premium-offer";
+import { TIMER_COLORS, dayIntro, formatMoney, splitElapsed } from "@/lib/premium-offer";
 import type { AppConfig } from "@/lib/settings";
 import { usePremiumCheckout } from "@/components/PaymentProvider";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,7 @@ export function PremiumCountdown({ prices, today, signupAt, settings }: Props) {
 
   const indexOf = (d: number) => days.findIndex((p) => p.day === d);
   const amountOf = (d: number) => days.find((p) => p.day === d)?.amount ?? 0;
+  const intro = (d: number) => dayIntro(d, today, amountOf(d), settings);
   const nextDay = (d: number) => days[(indexOf(d) + 1) % total]?.day ?? d;
   const isToday = day === today;
   const amount = amountOf(day);
@@ -87,7 +88,7 @@ export function PremiumCountdown({ prices, today, signupAt, settings }: Props) {
           </CountdownCircleTimer>
         </div>
         <div className="flex flex-col justify-center pl-1 text-left">
-          <p className="text-xs font-medium leading-snug text-foreground/85">{isToday ? settings.introToday : settings.introLater}</p>
+          <p className="text-xs font-medium leading-snug text-foreground/85">{intro(day)}</p>
           <div
             className={cn(
               "my-1.5 text-2xl font-black tracking-tight",
@@ -139,7 +140,7 @@ export function PremiumCountdown({ prices, today, signupAt, settings }: Props) {
         <li className="relative flex flex-col items-center justify-between rounded-2xl border-2 border-brand-gold/90 bg-brand-inset p-3 text-center shadow-glow">
           <div>
             <span className="text-xs font-semibold text-brand-gold">{dayLabel(today, today)}</span>
-            <p className="mt-1 text-[10px] leading-tight text-muted-foreground">{settings.introToday}</p>
+            <p className="mt-1 text-[10px] leading-tight text-muted-foreground">{intro(today)}</p>
             <div className="my-1.5 text-xl font-black text-brand-gold">{formatMoney(amountOf(today), settings.currency)}</div>
           </div>
           <button
@@ -160,7 +161,7 @@ export function PremiumCountdown({ prices, today, signupAt, settings }: Props) {
         >
           <span className="text-xs font-medium text-muted-foreground">{dayLabel(slideDay, today)}</span>
           <p className="mt-1 text-[10px] leading-tight text-muted-foreground/80">
-            {slideDay === today ? settings.introToday : settings.introLater}
+            {intro(slideDay)}
           </p>
           <div className="my-1.5 text-xl font-bold text-muted-foreground line-through">
             {formatMoney(amountOf(slideDay), settings.currency)}

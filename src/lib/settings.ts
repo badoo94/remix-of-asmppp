@@ -15,6 +15,9 @@ export interface AppConfig {
   currency: string;
   secondsPerDay: number;
   introToday: string;
+  /** Intro of the day right after today. */
+  introTomorrow: string;
+  /** Intro of the other days; {prix} = that day's price, {rang} = its rank ("3ème"). */
   introLater: string;
   practiceRules: PracticeRules;
 }
@@ -78,7 +81,8 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   currency: "EUR",
   secondsPerDay: 6,
   introToday: "Obtenez l'offre premium Aujourd'hui à :",
-  introLater: "Obtenez l'offre premium plus tard à :",
+  introTomorrow: "Obtenez l'offre premium demain à :",
+  introLater: "Le prix augmente à {prix} le {rang} jour",
   practiceRules: DEFAULT_PRACTICE_RULES,
 };
 
@@ -90,11 +94,15 @@ export const DEFAULT_ADMIN_CONFIG: AdminConfig = {
   monerooSecretKey: "",
 };
 
+/** Former default of `introLater`, replaced by the per-day template. */
+const LEGACY_INTRO_LATER = "Obtenez l'offre premium plus tard à :";
+
 export function mergeAppConfig(raw: unknown): AppConfig {
   const r = (raw && typeof raw === "object" ? raw : {}) as Partial<AppConfig>;
   return {
     ...DEFAULT_APP_CONFIG,
     ...r,
+    introLater: !r.introLater || r.introLater === LEGACY_INTRO_LATER ? DEFAULT_APP_CONFIG.introLater : r.introLater,
     practiceRules: {
       fr: { ...DEFAULT_PRACTICE_RULES.fr, ...(r.practiceRules?.fr ?? {}) },
       en: { ...DEFAULT_PRACTICE_RULES.en, ...(r.practiceRules?.en ?? {}) },

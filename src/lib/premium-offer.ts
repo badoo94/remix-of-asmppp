@@ -44,3 +44,27 @@ export function formatMoney(n: number, currency = "EUR") {
     return `${n.toFixed(2)} ${currency}`;
   }
 }
+
+/** "1er", "2ème", "3ème"… */
+export function dayRank(day: number) {
+  return day === 1 ? "1er" : `${day}ème`;
+}
+
+/**
+ * Intro text shown above a day's price: today's text, tomorrow's text, or the
+ * per-day template for the other days ({prix} = that day's price, {rang} = its rank).
+ */
+export function dayIntro(
+  day: number,
+  today: number,
+  amount: number,
+  texts: { introToday: string; introTomorrow: string; introLater: string; currency: string },
+) {
+  if (day === today) return texts.introToday;
+  if (day === today + 1) return texts.introTomorrow;
+  return texts.introLater
+    .split("{prix}")
+    .join(formatMoney(amount, texts.currency))
+    .split("{rang}")
+    .join(dayRank(day));
+}

@@ -61,7 +61,7 @@ export function CustomCarousel({ cards, interactive = true }: { cards: CustomCar
     const el = wrap.current;
     const first = el?.querySelector<HTMLElement>(".cp-card");
     if (!el || !first) return;
-    setActive(Math.round(el.scrollLeft / (first.offsetWidth + 16)));
+    setActive(Math.round(el.scrollLeft / (first.offsetWidth || 1)));
   };
 
   useEffect(onScroll, [visible.length]);

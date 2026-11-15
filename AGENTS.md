@@ -38,4 +38,4 @@ use the editor.
 - Text-to-speech uses the device voice when it actually starts, else cloud clips (`src/lib/tts.*`, cached in `media/tts/`) played via one tap-unlocked audio element (`src/lib/speech.ts`); why: in-app/WebView browsers have no device voice.
 - AI PDF distribution sends ~4.5k-char parts with low reasoning effort and is resumable; why: long AI calls were cut by the network before answering.
 - Editor rectangles open settings on double tap detected from react-rnd drag start/stop; why: mobile browsers never fire dblclick on draggable elements.
-- Custom pages (`type = "custom"`) store their carousel cards in `method_pages.cards` and render unscaled inside the A4 shell (overlays stay in a scaled layer); why: card HTML must stay readable at device size while rectangle coordinates keep page percentages.
+- Custom pages (`type = "custom"`) store their carousel cards in `method_pages.cards` and render in a screen-sized shell (overlay layer is PAGE_W wide, its height follows the shell, passed to editors via the overlay function); why: card HTML must stay readable at device size while rectangle coordinates keep page percentages.

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useRef, useState, type MouseEvent } from "react";
-import { ArrowLeft, ChevronsDown, Maximize2 } from "lucide-react";
+import { ArrowLeft, ChevronsDown, ChevronsUp, Maximize2 } from "lucide-react";
 import { methodQuery, rectsOverlap, type MethodRect } from "@/lib/method";
 import { appSettingsQuery, DEFAULT_APP_CONFIG } from "@/lib/settings";
 import { useAccess } from "@/lib/auth";
@@ -46,10 +46,14 @@ function MethodReader() {
   const getPageEl = useCallback((n: number) => pageEls.current.get(n) ?? null, []);
   const tts = useTTS(getPageEl, pages.length);
 
-  /** "Sauter cette page": jump to the top of the next page (or the end of the method). */
-  function skipPage(n: number) {
-    const next = pageEls.current.get(n + 1);
-    const top = next ? next.getBoundingClientRect().top + window.scrollY - 64 : document.documentElement.scrollHeight;
+  /** "Sauter cette page": from the top edge jump down to the next page, from the bottom edge jump up to the previous one. */
+  function skipPage(n: number, dir: "down" | "up") {
+    const target = pageEls.current.get(dir === "down" ? n + 1 : n - 1);
+    const top = target
+      ? target.getBoundingClientRect().top + window.scrollY - 64
+      : dir === "down"
+        ? document.documentElement.scrollHeight
+        : 0;
     window.scrollTo({ top, behavior: "smooth" });
   }
 
@@ -119,11 +123,10 @@ function MethodReader() {
                 custom && masks.length === 0 ? (
                   <button
                     type="button"
-                    aria-label="Plein écran"
                     onClick={() => setFullId(page.id)}
-                    className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-page-ink/80 text-page shadow-lg"
+                    className="absolute right-3 top-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-full bg-page-ink px-3 py-1.5 text-xs font-bold text-page shadow-lg"
                   >
-                    <Maximize2 className="h-4 w-4" />
+                    <Maximize2 className="h-3.5 w-3.5" /> Agrandir la page
                   </button>
                 ) : null
               }
@@ -165,14 +168,14 @@ function MethodReader() {
           const skip = (pos: "top" | "bottom") => (
             <button
               type="button"
-              onClick={() => skipPage(n)}
-              className={`absolute left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full bg-cta px-3 py-1.5 text-xs font-bold text-brand-ink shadow-glow ${pos === "top" ? "top-0 -translate-y-1/2" : "bottom-0 translate-y-1/2"}`}
+              onClick={() => skipPage(n, pos === "top" ? "down" : "up")}
+              className={`absolute left-3 z-30 flex items-center gap-1 rounded-full bg-cta px-3 py-1.5 text-xs font-bold text-brand-ink shadow-glow ${pos === "top" ? "top-0 -translate-y-1/2" : "bottom-0 translate-y-1/2"}`}
             >
-              <ChevronsDown className="h-3.5 w-3.5" /> Sauter cette page
+              {pos === "top" ? <ChevronsDown className="h-3.5 w-3.5" /> : <ChevronsUp className="h-3.5 w-3.5" />} Sauter cette page
             </button>
           );
           return (
-            <div key={page.id} className="relative">
+            <div key={page.id} className="relative w-full">
               {skip("top")}
               {sheet}
               {skip("bottom")}

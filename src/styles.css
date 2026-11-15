@@ -256,6 +256,11 @@
   position: relative;
   flex-shrink: 0;
 }
+/* Custom page: whole screen width, screen height minus 50px above and below */
+.mp-custom-shell {
+  width: 100%;
+  height: max(320px, calc(100dvh - 100px));
+}
 
 .mp-page {
   width: 210mm;
@@ -444,16 +449,17 @@
 .cp-carousel::-webkit-scrollbar { display: none; }
 .cp-track {
   display: flex;
-  gap: 16px;
+  gap: 0;
   width: max-content;
   height: 100%;
-  padding: 0 calc((100cqw - min(82cqw, 640px)) / 2) 52px;
+  padding: 0 0 52px;
 }
 .cp-card {
   --c: var(--cp-color, var(--cp-gold));
   position: relative;
   scroll-snap-align: center;
-  width: min(82cqw, 640px);
+  scroll-snap-stop: always;
+  width: 100cqw;
   height: 100%;
   flex-shrink: 0;
   overflow: hidden;
@@ -570,7 +576,7 @@
 .cp-btn-del:hover { background: #c0392b; }
 
 /* Media card ("carte personnalisée"): video/GIF + timed texts + dismiss button */
-.cp-card { --cp-w: min(82cqw, 640px); width: var(--cp-w); }
+.cp-card { --cp-w: 100cqw; width: var(--cp-w); }
 .cp-card.is-leaving {
   animation: cp-card-leave 0.75s cubic-bezier(0.55, 0, 0.3, 1) forwards;
   pointer-events: none;
@@ -578,7 +584,7 @@
 @keyframes cp-card-leave {
   0% { transform: none; opacity: 1; width: var(--cp-w); margin-right: 0; }
   55% { transform: translateX(-115%) rotate(-6deg); opacity: 0; width: var(--cp-w); margin-right: 0; }
-  100% { transform: translateX(-115%) rotate(-6deg); opacity: 0; width: 0; margin-right: -16px; }
+  100% { transform: translateX(-115%) rotate(-6deg); opacity: 0; width: 0; margin-right: 0; }
 }
 .cp-media {
   position: relative;
@@ -627,7 +633,7 @@
   cursor: pointer;
 }
 .cp-media-btn:active { transform: scale(0.97); }
-.cp-done { align-self: center; width: min(82cqw, 640px); text-align: center; font-size: 15px; color: #6e5d4f; }
+.cp-done { align-self: center; width: 100cqw; padding: 0 24px; text-align: center; font-size: 15px; color: #6e5d4f; }
 .cp-btn-media { background: var(--cp-gold); }
 .cp-set .cp-sub { display: block; font-size: 13px; font-weight: 600; color: var(--cp-muted); margin-bottom: 6px; }
 .cp-btn-file {
