@@ -1,1 +1,0 @@
-ALTER TABLE public.method_pages ADD COLUMN IF NOT EXISTS cards jsonb NOT NULL DEFAULT '[]'::jsonb;

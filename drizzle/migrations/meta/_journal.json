@@ -1,34 +1,5 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1794267087082,
-      "tag": "0000_migration",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1794267113588,
-      "tag": "0001_migration",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1794613390667,
-      "tag": "0002_method_pages_cards",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1794692167991,
-      "tag": "0003_dismissed_cards",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }
